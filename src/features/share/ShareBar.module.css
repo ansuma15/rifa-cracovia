@@ -1,0 +1,47 @@
+.band {
+  padding-block: clamp(2.5rem, 6vw, 3.5rem);
+  background:
+    radial-gradient(40rem 18rem at 10% 100%, rgb(76 141 255 / 0.14), transparent 70%),
+    #0d1d3a;
+  border-top: 1px solid var(--line);
+}
+
+.inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+}
+
+.title {
+  font-size: var(--text-xl);
+}
+
+.text {
+  margin-top: 0.4rem;
+  color: var(--ice-dim);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.status {
+  min-width: 8rem;
+  font-size: var(--text-s);
+  color: #3ddc97;
+}
+
+@media (max-width: 540px) {
+  .actions {
+    width: 100%;
+  }
+  .actions > a,
+  .actions > button {
+    flex: 1 1 100%;
+  }
+}

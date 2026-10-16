@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.local
+__pycache__/
+.pytest_cache/
+# Exportaciones de códigos: nunca al repositorio
+codigos*.csv
+*codes*.csv
+.DS_Store
+
+# Fotos originales (pesadas): solo se publican las procesadas en public/premios/
+fotos-originales/*
+!fotos-originales/LEEME.md

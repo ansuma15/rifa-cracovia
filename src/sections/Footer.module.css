@@ -1,0 +1,22 @@
+.footer {
+  border-top: 1px solid var(--line);
+  background: var(--night-deep);
+  padding-block: 2.5rem calc(2.5rem + env(safe-area-inset-bottom));
+}
+
+.inner {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.thanks {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.6rem;
+}
+
+.meta {
+  color: var(--ice-dim);
+  font-size: var(--text-s);
+  max-width: 62ch;
+}

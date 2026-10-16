@@ -1,0 +1,412 @@
+.section {
+  padding-block: clamp(3.5rem, 8vw, 5.5rem);
+  background: #0d1d3a;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+}
+
+.lead {
+  margin-top: 0.6rem;
+  color: var(--ice-dim);
+  max-width: 50ch;
+}
+
+/* --- Estado de sincronización ------------------------------------ */
+.sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-s);
+  color: var(--ice-dim);
+}
+.dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.live .dot {
+  background: #3ddc97;
+}
+.slow .dot {
+  background: var(--ice-dim);
+}
+.warn {
+  color: var(--ticket);
+}
+
+/* --- Leyenda y búsqueda ------------------------------------------ */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+  margin-top: 2rem;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.count {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.swatch {
+  border: 2px solid transparent;
+  width: 1.4rem;
+  height: 1.25rem;
+  border-radius: 6px 6px 3px 3px;
+}
+
+.search {
+  display: grid;
+  gap: 0.35rem;
+  width: min(100%, 20rem);
+}
+
+.search label {
+  font-size: var(--text-s);
+  color: var(--ice-dim);
+}
+
+.search input {
+  min-height: 48px;
+  padding: 0 1rem;
+  border-radius: var(--radius-m);
+  border: 1.5px solid var(--line);
+  background: var(--night);
+}
+
+.search input:focus-visible {
+  outline: none;
+  border-color: var(--seat);
+  box-shadow: 0 0 0 3px var(--seat-glow);
+}
+
+.results {
+  margin-top: 1rem;
+  color: var(--ice-dim);
+}
+
+.results ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.resultBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0 1rem 0 0.4rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.resultBtn:hover {
+  border-color: var(--seat);
+}
+
+.resultNum {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  min-width: 2.2rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  background: var(--night);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Sala de cine ------------------------------------------------- */
+.theater {
+  position: relative;
+  margin-top: 1.75rem;
+  padding: clamp(1rem, 4vw, 2.5rem) clamp(0.5rem, 3vw, 2.5rem) clamp(1.25rem, 4vw, 2.5rem);
+  background:
+    radial-gradient(70% 45% at 50% 0%, rgb(76 141 255 / 0.18), transparent 75%),
+    var(--night-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  overflow: hidden;
+}
+
+/* La pantalla: el premio ilumina la sala */
+.screen {
+  width: min(78%, 34rem);
+  margin: 0 auto clamp(1.5rem, 5vw, 2.75rem);
+  text-align: center;
+}
+
+.screen::before {
+  content: "";
+  display: block;
+  height: 14px;
+  border-radius: 50% / 100% 100% 0 0;
+  border-top: 4px solid #cfe0ff;
+  box-shadow: 0 -10px 30px -4px rgb(130 175 255 / 0.55);
+}
+
+.screen span {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--ice-dim);
+}
+
+.grid {
+  --seat-size: clamp(27px, calc((100vw - 4.5rem) / 11), 52px);
+  display: grid;
+  gap: clamp(5px, 1.2vw, 10px);
+  justify-content: center;
+  transition: opacity 200ms;
+}
+
+.inactive {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(5, var(--seat-size)) clamp(8px, 3vw, 28px) repeat(5, var(--seat-size));
+  gap: clamp(4px, 1vw, 8px);
+}
+
+/* El pasillo central: la sexta butaca empieza en la columna 7 */
+.row > .cell:nth-child(6) {
+  grid-column: 7;
+}
+
+.cell {
+  display: block;
+}
+
+.seat {
+  width: var(--seat-size);
+  aspect-ratio: 1 / 0.92;
+  border-radius: 11px 11px 5px 5px;
+  border: 2px solid transparent;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(0.85rem, 2.6vw, 1.25rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 120ms, border-color 120ms, transform 120ms, box-shadow 120ms;
+}
+
+/* Reposabrazos: una línea inferior que da forma de butaca */
+.seat::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: -5px;
+  height: 3px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.35;
+}
+
+/* Disponible: contorno azul, invita a tocar */
+.available {
+  border-color: var(--seat);
+  background: rgb(76 141 255 / 0.08);
+  color: var(--ice);
+}
+.seat.available:hover {
+  background: var(--seat-glow);
+  transform: translateY(-2px);
+}
+
+/* Reservado: ámbar con rayas (se distingue también sin color) */
+.reserved {
+  background: repeating-linear-gradient(135deg, var(--ticket) 0 6px, #e7a82e 6px 12px);
+  border-color: var(--ticket);
+  color: #2a1a00;
+}
+
+/* Ocupado: relleno sólido y apagado, con borde para que la butaca
+   conserve ≥3:1 de contraste contra la sala (WCAG 1.4.11) */
+.paid {
+  background: var(--taken);
+  border-color: #6680ad;
+  color: var(--taken-ink);
+}
+
+.unknown {
+  background: var(--surface);
+  color: var(--ice-dim);
+  cursor: default;
+}
+
+.seat.selected {
+  background: var(--ice);
+  border-color: var(--ice);
+  color: #0b1830;
+  transform: translateY(-2px);
+}
+
+.seat.highlighted {
+  box-shadow: 0 0 0 3px var(--night-deep), 0 0 0 6px var(--ice);
+  z-index: 1;
+}
+
+.seat:focus-visible {
+  outline: 3px solid var(--ice);
+  outline-offset: 3px;
+}
+
+/* El único movimiento automático: una butaca que cambió en vivo se enciende */
+.flash {
+  animation: flash 1.4s ease-out;
+}
+@keyframes flash {
+  0% {
+    box-shadow: 0 0 0 0 rgb(207 224 255 / 0.9);
+    transform: scale(1.12);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgb(207 224 255 / 0);
+    transform: scale(1);
+  }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.6rem;
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--ice-dim);
+}
+
+.overlayTitle {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: var(--ice);
+}
+
+/* --- Lista de participantes -------------------------------------- */
+.list {
+  margin-top: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+}
+
+.list summary {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 0 1.1rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0 0.5rem 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.25rem 1rem;
+}
+
+.list li button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.list li button:hover {
+  background: var(--surface-2);
+}
+
+.listName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+}
+
+/* Celular: la sala ocupa casi todo el ancho para que las butacas sean más grandes */
+@media (max-width: 540px) {
+  .toolbar {
+    margin-top: 1.25rem;
+    gap: 1rem;
+  }
+  .legend {
+    gap: 0.25rem 1rem;
+    font-size: var(--text-s);
+  }
+  .search {
+    width: 100%;
+  }
+  .theater {
+    margin-inline: calc(4px - var(--gutter));
+    padding-inline: 8px;
+    border-radius: var(--radius-m);
+  }
+  .grid {
+    --seat-size: calc((100vw - 74px) / 10);
+    gap: 7px;
+  }
+  .row {
+    grid-template-columns: repeat(5, var(--seat-size)) 8px repeat(5, var(--seat-size));
+    gap: 4px;
+  }
+}

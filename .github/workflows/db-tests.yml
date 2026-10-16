@@ -1,0 +1,31 @@
+name: Pruebas de base de datos
+
+on:
+  push:
+    paths: ["supabase/**", "tests/db/**", ".github/workflows/db-tests.yml"]
+  pull_request:
+    paths: ["supabase/**", "tests/db/**", ".github/workflows/db-tests.yml"]
+
+jobs:
+  db-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r tests/db/requirements.txt
+      - name: Ejecutar pruebas
+        working-directory: tests/db
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: pytest -q
