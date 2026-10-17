@@ -2,7 +2,7 @@ import styles from "./Header.module.css";
 
 const LINKS = [
   { href: "#premio", label: "Premio" },
-  { href: "#proposito", label: "Propósito" },
+  { href: "#quien-soy", label: "Quién soy" },
   { href: "#numeros", label: "Números" },
   { href: "#participar", label: "Participar" },
 ];

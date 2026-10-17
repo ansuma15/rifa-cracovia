@@ -3,23 +3,44 @@ import { Video } from "../features/video/Video";
 import styles from "./Purpose.module.css";
 
 /**
- * Responde dos preguntas en orden: ¿qué necesito? y ¿por qué lo necesito?
- * Preguntas a la izquierda, respuestas a la derecha; en celular, una
- * debajo de la otra.
+ * ¿Quién soy? Una sola sección que junta la historia (video) con lo que
+ * se necesita (ruta + tres gastos).
+ *
+ * Computadora: texto arriba; abajo, la ruta y los gastos a la izquierda y
+ * el video a la derecha.
+ * Celular (el medio principal): una sola columna en el orden en que se lee
+ * una historia — quién soy → video → qué necesito → cierre. El mapa se
+ * cambia por una línea "Ciudad de México → Cracovia · 10,260 km" para no
+ * saturar la pantalla.
  */
 export function Purpose() {
+  const km = purpose.distanceKm.toLocaleString("es-MX");
   return (
-    <section id="proposito" className={styles.section} aria-labelledby="que-necesito">
+    <section id="quien-soy" className={styles.section} aria-labelledby="quien-soy-titulo">
       <div className="wrap">
-        <div className={styles.row}>
-          <div className={styles.question}>
-            <h2 id="que-necesito">{purpose.need.title}</h2>
-            <p>{purpose.need.intro}</p>
-            <p className={styles.closing}>{purpose.need.closing}</p>
-          </div>
-          <div className={styles.answer}>
+        <header className={styles.intro}>
+          <h2 id="quien-soy-titulo">{purpose.title}</h2>
+          <p>{purpose.intro}</p>
+        </header>
+
+        <div className={styles.layout}>
+          <figure className={styles.story}>
+            <Video />
+            <figcaption>{purpose.videoCaption}</figcaption>
+          </figure>
+
+          <div className={styles.needs}>
             <RouteMap />
-            <ul className={styles.uses} aria-label="En qué se usará lo recaudado">
+            <p className={styles.routeLine}>
+              <span>{purpose.from}</span>
+              <span aria-hidden="true" className={styles.arrow}>→</span>
+              <span className="visually-hidden">a</span>
+              <span>{purpose.to}</span>
+              <strong>{km} km</strong>
+            </p>
+
+            <h3 className={styles.usesTitle}>{purpose.usesTitle}</h3>
+            <ul className={styles.uses}>
               {purpose.uses.map((u) => (
                 <li key={u.title}>
                   <strong>{u.title}</strong>
@@ -30,15 +51,7 @@ export function Purpose() {
           </div>
         </div>
 
-        <div className={styles.row}>
-          <div className={styles.question}>
-            <h2 id="por-que">{purpose.why.title}</h2>
-            <p>{purpose.why.intro}</p>
-          </div>
-          <div className={styles.answer}>
-            <Video />
-          </div>
-        </div>
+        <p className={styles.closing}>{purpose.closing}</p>
       </div>
     </section>
   );

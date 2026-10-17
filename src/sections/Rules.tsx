@@ -1,6 +1,6 @@
-import { rules, teamList } from "../content";
+import { payment, rules, teamList } from "../content";
 import { PaymentInfo } from "../features/payment/PaymentInfo";
-import { holdHours, hoursText } from "../lib/format";
+import { codeRequestLink, holdHours, hoursText } from "../lib/format";
 import type { PublicConfig } from "../lib/types";
 import { formatPrice } from "../lib/usePublicConfig";
 import styles from "./Rules.module.css";
@@ -10,6 +10,7 @@ export function Rules({ config }: { config: PublicConfig | null }) {
   const hours = holdHours(config);
 
   const [reserve, pay] = rules.steps;
+  const codeLink = codeRequestLink(payment.whatsapp);
 
   return (
     <section id="participar" className={styles.section} aria-labelledby="participar-titulo">
@@ -30,6 +31,14 @@ export function Rules({ config }: { config: PublicConfig | null }) {
                   </>
                 )}
               </p>
+              {codeLink && reserve?.codeHelp && (
+                <div className={styles.codeHelp}>
+                  <p>{reserve.codeHelp}</p>
+                  <a className="btn btn-ghost" href={codeLink} target="_blank" rel="noopener noreferrer">
+                    {reserve.codeButton}
+                  </a>
+                </div>
+              )}
             </li>
             <li>
               <h3>{pay?.title}</h3>

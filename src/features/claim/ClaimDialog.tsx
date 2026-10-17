@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { claimNumber } from "../../lib/api";
-import { contactErrors, deadlineText, holdHours, hoursText } from "../../lib/format";
+import { payment } from "../../content";
+import { codeRequestLink, contactErrors, deadlineText, holdHours, hoursText } from "../../lib/format";
 import { PaymentInfo } from "../payment/PaymentInfo";
 import type { BoardNumber, ClaimError, ClaimOutcome, NumberId, PublicConfig } from "../../lib/types";
 import { formatPrice } from "../../lib/usePublicConfig";
@@ -51,6 +52,8 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const [view, setView] = useState<View>({ kind: "form" });
   const [openedId, setOpenedId] = useState<NumberId | null>(null);
+  // El código es por número: el mensaje de WhatsApp ya dice cuál quiere.
+  const codeLink = codeRequestLink(payment.whatsapp, openedId ?? undefined);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
@@ -179,6 +182,14 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
                   required
                   disabled={locked}
                 />
+                {codeLink && (
+                  <small>
+                    ¿No tienes código?{" "}
+                    <a href={codeLink} target="_blank" rel="noopener noreferrer">
+                      Pídelo por WhatsApp
+                    </a>
+                  </small>
+                )}
               </label>
 
               <fieldset className={styles.contact} disabled={locked}>

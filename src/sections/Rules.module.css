@@ -74,6 +74,34 @@
   color: var(--ice);
 }
 
+/* Pedir el código: botón grande para tocar con el pulgar en celular */
+.codeHelp {
+  display: grid;
+  justify-items: start;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px dashed var(--seat);
+  border-radius: var(--radius-m);
+  background: rgb(76 141 255 / 0.07);
+}
+
+.steps .codeHelp p {
+  margin-top: 0;
+  color: var(--ice);
+}
+
+@media (max-width: 540px) {
+  .codeHelp {
+    padding: 0.85rem 0.75rem;
+  }
+  .codeHelp a {
+    width: 100%;
+    padding-inline: 0.75rem;
+    text-align: center;
+  }
+}
+
 /* Cierre del proceso: no es un paso más, es el resultado. La butaca se
    "llena" con una palomita, como un número ya ocupado en el tablero. */
 .steps li.done {

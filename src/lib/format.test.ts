@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { payment } from "../content";
-import { contactErrors, formatClabe, holdHours, isValidClabe, normalizePhone, receiptLink, youtubeId } from "./format";
+import { codeRequestLink, contactErrors, formatClabe, holdHours, isValidClabe, normalizePhone, receiptLink, youtubeId } from "./format";
 
 describe("CLABE", () => {
   it("la CLABE publicada tiene 18 dígitos y dígito verificador correcto", () => {
@@ -59,5 +59,10 @@ describe("plazo y comprobante", () => {
     expect(decodeURIComponent(link!)).toContain("Número: 25. Nombre: Ana.");
     expect(receiptLink(null)).toBeNull();
     expect(receiptLink("55-1234")).toBeNull();
+  });
+  it("el enlace para pedir código lleva el número, o un espacio si aún no se elige", () => {
+    expect(decodeURIComponent(codeRequestLink("525512345678", "07")!)).toContain("reservar el número 07");
+    expect(decodeURIComponent(codeRequestLink("525512345678")!)).toContain("reservar el número __");
+    expect(codeRequestLink(null)).toBeNull();
   });
 });

@@ -3,39 +3,45 @@
   background: linear-gradient(180deg, var(--night), #0d1d3a);
 }
 
-/* Cada fila: pregunta a la izquierda, respuesta a la derecha */
-.row {
-  display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr);
-  gap: clamp(1.25rem, 5vw, 3.5rem);
-  align-items: start;
-}
-
-.row + .row {
-  margin-top: clamp(3rem, 7vw, 4.5rem);
-  padding-top: clamp(3rem, 7vw, 4.5rem);
-  border-top: 1px solid var(--line);
-}
-
-.question {
+/* --- Presentación ------------------------------------------------- */
+.intro {
   display: grid;
   gap: 0.75rem;
-  max-width: 34ch;
+  max-width: 62ch;
 }
 
-.question p {
+.intro p {
   color: var(--ice-dim);
 }
 
-.question .closing {
-  margin-top: 0.5rem;
-  padding-left: 1rem;
-  border-left: 3px solid var(--seat);
-  color: var(--ice);
-  font-weight: 700;
+/* --- Cuerpo: ruta y gastos | video --------------------------------
+   En el HTML el video va primero (en celular se ve antes que los gastos);
+   en computadora las áreas lo pasan a la derecha. */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: "needs story";
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
 }
 
-.answer {
+.story {
+  grid-area: story;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.story figcaption {
+  color: var(--ice-dim);
+  font-size: var(--text-s);
+  line-height: 1.5;
+}
+
+.needs {
+  grid-area: needs;
   display: grid;
   gap: 1.25rem;
   min-width: 0;
@@ -61,6 +67,21 @@
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 22px;
+}
+
+/* Versión de una línea del mapa: solo se muestra en celular */
+.routeLine {
+  display: none;
+}
+
+/* En computadora el mapa ya dice qué es; el título solo hace falta en celular */
+.usesTitle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .uses {
@@ -93,24 +114,81 @@
   line-height: 1.45;
 }
 
-@media (max-width: 820px) {
-  .row {
+/* --- Cierre ------------------------------------------------------- */
+.closing {
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+  max-width: 62ch;
+  padding-left: 1rem;
+  border-left: 3px solid var(--seat);
+  color: var(--ice);
+  font-weight: 700;
+}
+
+/* Tableta: una columna, el video primero y a todo lo ancho */
+@media (max-width: 860px) {
+  .layout {
     grid-template-columns: 1fr;
-  }
-  .question {
-    max-width: 60ch;
+    grid-template-areas:
+      "story"
+      "needs";
   }
 }
 
-@media (max-width: 520px) {
+/* Celular: lo esencial, sin saturar */
+@media (max-width: 640px) {
+  .map {
+    display: none;
+  }
+
+  .routeLine {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-m);
+    background: var(--night-deep);
+    font-weight: 700;
+  }
+
+  .arrow {
+    color: var(--seat);
+  }
+
+  .routeLine strong {
+    margin-left: auto;
+    color: var(--seat);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .usesTitle {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    font-size: 1.3rem;
+    margin-bottom: -0.5rem;
+  }
+
+  /* Los tres gastos como lista corta: nombre a la izquierda, detalle a la derecha */
   .uses {
     grid-template-columns: 1fr;
     gap: 0;
   }
+
   .uses li {
-    grid-template-columns: 8.5rem 1fr;
+    grid-template-columns: 7.5rem 1fr;
     gap: 0.75rem;
     padding: 0.7rem 0;
     border-top: 1px solid var(--line);
+  }
+
+  .uses strong {
+    font-size: 1.15rem;
   }
 }

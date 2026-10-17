@@ -73,3 +73,14 @@ export function receiptLink(whatsapp: string | null, number?: string, name?: str
   if (name) parts.push(`Nombre: ${name}.`);
   return `https://wa.me/${whatsapp}?text=${encodeURIComponent(parts.join(" "))}`;
 }
+
+/**
+ * Enlace de WhatsApp para pedir el código de un número. Cada código sirve
+ * para un solo número, así que el mensaje ya lleva el número si se conoce;
+ * si no, deja el espacio "__" para que la persona lo escriba.
+ */
+export function codeRequestLink(whatsapp: string | null, number?: string): string | null {
+  if (!whatsapp || !/^\d{8,15}$/.test(whatsapp)) return null;
+  const text = `Hola, quiero reservar el número ${number ?? "__"} de la rifa rumbo a Cracovia. ¿Me compartes mi código?`;
+  return `https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`;
+}

@@ -91,6 +91,13 @@
   font-size: 0.85rem;
 }
 
+.field small a {
+  display: inline-block;
+  padding-block: 0.35rem; /* área de toque más alta en celular */
+  color: var(--seat);
+  font-weight: 700;
+}
+
 .codeInput {
   font-family: var(--font-display);
   font-weight: 700;
