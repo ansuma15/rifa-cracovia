@@ -15,6 +15,7 @@ export function Purpose() {
           <div className={styles.question}>
             <h2 id="que-necesito">{purpose.need.title}</h2>
             <p>{purpose.need.intro}</p>
+            <p className={styles.closing}>{purpose.need.closing}</p>
           </div>
           <div className={styles.answer}>
             <RouteMap />

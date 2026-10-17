@@ -27,6 +27,14 @@
   color: var(--ice-dim);
 }
 
+.question .closing {
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+  border-left: 3px solid var(--seat);
+  color: var(--ice);
+  font-weight: 700;
+}
+
 .answer {
   display: grid;
   gap: 1.25rem;

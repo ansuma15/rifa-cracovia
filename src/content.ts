@@ -46,16 +46,19 @@ export const purpose = {
   heading: "Para qué es esta rifa",
   need: {
     title: "¿Qué necesito?",
-    intro: "Reunir los fondos para tres gastos de mi intercambio en AGH University of Krakow, Polonia:",
+    intro:
+      "Hola soy estudiante del IPN con promedio de 9.79 y voy a estudiar un intercambio en AGH University of Krakow, en Polonia, un sueño por el que he trabajado cada noche y cada dia. Para hacerlo realidad necesito reunir los fondos para tres gastos esenciales.",
+    closing:
+      "Cada número que apartas o apoyo que me brindes me acerca un poco más a Cracovia y a una experiencia que estoy dispuesto a aprovechar al máximo.",
   },
   why: {
     title: "¿Por qué lo necesito?",
     intro: "En este video te cuento quién soy y por qué este intercambio es tan importante para mí.",
   },
   uses: [
-    { title: "Vuelos", detail: "Ida y vuelta entre Ciudad de México y Cracovia." },
-    { title: "Seguro médico", detail: "Obligatorio durante toda la estancia." },
-    { title: "Gastos de vida", detail: "Hospedaje, comida y transporte en Cracovia." },
+    { title: "Vuelos", detail: "El primer paso ida y vuelta entre Ciudad de México y Cracovia." },
+    { title: "Seguro médico", detail: "Obligatorio para estudiar allá, y la tranquilidad de estar cubierto." },
+    { title: "Gastos de vida", detail: "Hospedaje, comida y transporte para vivir y estudiar en Cracovia." },
   ],
   from: "Ciudad de México",
   to: "Cracovia",
