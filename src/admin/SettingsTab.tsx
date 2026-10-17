@@ -8,11 +8,13 @@ import styles from "./Admin.module.css";
 export function SettingsTab({ run }: { run: RunAction }) {
   const [config, setConfig] = useState<PublicConfig | null>(null);
   const [price, setPrice] = useState("");
+  const [hours, setHours] = useState("");
 
   const load = () =>
     fetchPublicConfig().then((c) => {
       setConfig(c);
       setPrice(c.price_per_number != null ? String(Number(c.price_per_number)) : "");
+      setHours(c.reservation_hours != null ? String(Number(c.reservation_hours)) : "");
     });
 
   useEffect(() => {
@@ -24,6 +26,13 @@ export function SettingsTab({ run }: { run: RunAction }) {
   const savePrice = async (e: FormEvent) => {
     e.preventDefault();
     if (await run("Precio actualizado", () => adminApi.updateSettings({ price_per_number: Number(price) }))) void load();
+  };
+
+  const saveHours = async (e: FormEvent) => {
+    e.preventDefault();
+    const value = hours.trim() === "" ? null : Number(hours);
+    if (value != null && (!Number.isFinite(value) || value < 1)) return;
+    if (await run("Plazo de reserva actualizado", () => adminApi.updateSettings({ reservation_hours: value }))) void load();
   };
 
   const toggleOpen = async () => {
@@ -45,6 +54,18 @@ export function SettingsTab({ run }: { run: RunAction }) {
         </label>
         <p className={styles.help}>Se muestra en el sitio y se usa como monto sugerido al confirmar pagos.</p>
         <button className="btn btn-primary">Guardar precio</button>
+      </form>
+
+      <form onSubmit={saveHours} className={styles.form}>
+        <label className={styles.field}>
+          <span>Horas para pagar una reserva</span>
+          <input type="number" min="1" step="1" value={hours} onChange={(e) => setHours(e.target.value)} placeholder="Sin límite" />
+        </label>
+        <p className={styles.help}>
+          Al vencer, la reserva se cancela sola y el número vuelve a quedar libre. Aplica a las reservas nuevas. Vacío =
+          sin límite.
+        </p>
+        <button className="btn btn-primary">Guardar plazo</button>
       </form>
 
       <div className={styles.form}>

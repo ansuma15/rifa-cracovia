@@ -71,7 +71,7 @@ def test_valid_code_reserves_number_once(admin, public, superuser):
     r = public.claim("25", "  Ana   María ", code)
     assert r["ok"] is True and r["status"] == "reserved" and r["number"] == "25"
     assert r["first_name"] == "Ana María"
-    assert r["expires_at"] is None  # por defecto las reservas no expiran
+    assert r["expires_at"] is not None  # por defecto la reserva dura 72 horas
 
     board = public.one("select row_to_json(r) from public.raffle_numbers r where id = '25'")
     assert board["status"] == "reserved" and board["public_name"] == "Ana María"
@@ -212,10 +212,10 @@ def test_reservation_is_not_payment(admin, public, superuser):
     check_invariants(superuser)
 
 
-def test_initial_config_is_700_mxn_without_expiry(public):
+def test_initial_config_is_700_mxn_with_72h_hold(public):
     cfg = public.one("select public.get_public_config()")
     assert float(cfg["price_per_number"]) == 700 and cfg["currency"] == "MXN"
-    assert cfg["reservation_hours"] is None
+    assert float(cfg["reservation_hours"]) == 72
 
 
 def test_mark_paid_defaults_to_configured_price(admin, public):
@@ -328,10 +328,26 @@ def test_lazy_expiry_inside_claim(admin, public, superuser):
     check_invariants(superuser)
 
 
-def test_default_reservations_never_expire(admin, public, superuser):
-    public.claim("73", "Ana", gen_code(admin, "73"))
+def test_reservation_lasts_72_hours(admin, public, superuser):
+    r = public.claim("73", "Ana", gen_code(admin, "73"))
+    hours = superuser.execute(
+        "select extract(epoch from (expires_at - reserved_at)) / 3600 from private.participations "
+        "where number_id = '73'").fetchone()[0]
+    assert round(float(hours)) == 72 and r["expires_at"] is not None
+    # Antes del plazo no se libera…
     assert superuser.execute("select private.expire_reservations()").fetchone()[0] == 0
     assert public.one("select status from public.raffle_numbers where id = '73'") == "reserved"
+    # …y al vencer, sí (el código usado no se reactiva).
+    _force_expire(superuser, "73")
+    assert superuser.execute("select private.expire_reservations()").fetchone()[0] == 1
+    assert public.one("select status from public.raffle_numbers where id = '73'") == "available"
+    check_invariants(superuser)
+
+
+def test_reservations_can_be_set_to_never_expire(admin, public, superuser):
+    admin.one("select public.admin_update_settings('{\"reservation_hours\": null}')")
+    r = public.claim("75", "Ana", gen_code(admin, "75"))
+    assert r["expires_at"] is None
     assert public.one("select public.get_public_config()")["reservation_hours"] is None
 
 
@@ -375,7 +391,7 @@ def test_function_grants_are_minimal(superuser):
          where n.nspname in ('public', 'private')""").fetchall()
     anon_ok = {r[0] for r in rows if r[1]}
     auth_ok = {r[0] for r in rows if r[2]}
-    assert anon_ok == {"get_public_config()", "claim_number(text,text,text)"}
+    assert anon_ok == {"get_public_config()", "claim_number(text,text,text,text,text)"}
     assert all(f.startswith(("admin_", "is_admin", "get_public_config", "claim_number")) for f in auth_ok)
     assert not any(f.startswith("private.") for f in auth_ok)
 
@@ -456,11 +472,13 @@ def test_generate_all_available(admin, public):
 
 def test_admin_renames_participant_and_board_updates(admin, public, superuser):
     public.claim("80", "Anna", gen_code(admin, "80"))
-    admin.one("select public.admin_update_participant('80', 'Ana', '55 1234 5678', 'Prima')")
+    admin.one("select public.admin_update_participant('80', 'Ana', 'Ana@Correo.com', '55 1234 5678', 'Prima')")
     assert public.one("select public_name from public.raffle_numbers where id = '80'") == "Ana"
-    row = [r for r in admin.all("select number_id, first_name, contact from public.admin_list_numbers()")
+    row = [r for r in admin.all("select number_id, first_name, email, phone, notes from public.admin_list_numbers()")
            if r[0] == "80"][0]
-    assert row == ("80", "Ana", "55 1234 5678")
+    assert row == ("80", "Ana", "ana@correo.com", "5512345678", "Prima")
+    with pytest.raises(psycopg.errors.InvalidParameterValue):
+        admin.one("select public.admin_update_participant('80', 'Ana', 'no-es-correo', null, null)")
     # El contacto jamás llega al tablero público.
     board = public.one("select row_to_json(r)::text from public.raffle_numbers r where id = '80'")
     assert "1234" not in board
@@ -489,3 +507,44 @@ def test_realtime_publication_includes_board(superuser):
     rows = superuser.execute("select schemaname, tablename from pg_publication_tables "
                              "where pubname = 'supabase_realtime'").fetchall()
     assert rows == [("public", "raffle_numbers")]
+
+
+# ---------------------------------------------------------------------------
+# Contacto opcional (migración 7)
+# ---------------------------------------------------------------------------
+
+def test_contact_is_optional_and_private(admin, public, superuser):
+    assert public.claim("81", "Ana", gen_code(admin, "81"))["ok"] is True  # sin contacto
+    r = public.claim("82", "Beto", gen_code(admin, "82"), "  Beto@Mail.COM ", "+52 (55) 1234-5678")
+    assert r["ok"] is True
+    rows = {x[0]: x[1:] for x in admin.all("select number_id, email, phone from public.admin_list_numbers()")}
+    assert rows["81"] == (None, None)
+    assert rows["82"] == ("beto@mail.com", "+525512345678")
+    # Nada de esto es visible para el público ni queda en el historial.
+    board = public.one("select json_agg(r)::text from public.raffle_numbers r")
+    assert "beto@mail.com" not in board and "1234" not in board
+    log = superuser.execute("select string_agg(details::text, '|') from private.admin_audit_log").fetchone()[0]
+    assert "beto@mail.com" not in log and "1234" not in log
+    check_invariants(superuser)
+
+
+def test_only_email_or_only_phone(admin, public):
+    assert public.claim("83", "Ana", gen_code(admin, "83"), "ana@mail.com", None)["ok"] is True
+    assert public.claim("84", "Luis", gen_code(admin, "84"), None, "5512345678")["ok"] is True
+    assert public.claim("85", "Eva", gen_code(admin, "85"), "", "")["ok"] is True  # vacíos = sin contacto
+
+
+@pytest.mark.parametrize("email,phone", [
+    ("sin-arroba", None),
+    ("a@b", None),
+    ("a" * 120 + "@mail.com", None),
+    (None, "123"),            # muy corto
+    (None, "55-1234-ABCD"),   # letras
+    (None, "1" * 16),         # demasiado largo
+])
+def test_invalid_contact_rejected_without_consuming_code(admin, public, superuser, email, phone):
+    code = gen_code(admin, "86")
+    assert public.claim("86", "Ana", code, email, phone) == {"ok": False, "error": "invalid_contact"}
+    assert superuser.execute(
+        "select status from private.authorization_codes where number_id = '86'").fetchone()[0] == "issued"
+    assert public.claim("86", "Ana", code, "ana@mail.com", None)["ok"] is True

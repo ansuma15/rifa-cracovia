@@ -472,7 +472,9 @@ y reserva del número como visitante anónimo.
 |---|---|
 | Premios | **Un solo paquete:** quien gana se lleva la televisión de 75" y el equipo de sonido |
 | Nombre público | Los números reservados **y** los pagados muestran el nombre de pila, para que cada quien se ubique fácilmente |
-| Duración de la reserva | Indefinida: hasta que el admin confirma el pago o cancela |
+| Duración de la reserva | **72 horas** (migración 7). Si no se paga, se libera sola vía pg_cron; el código usado no se reactiva. Configurable en el panel |
+| Contacto del participante | Correo y/o teléfono **opcionales** y privados (`participants.email/phone`), para avisar al ganador |
+| Pago | Transferencia a CLABE (dígito verificador comprobado en pruebas) o efectivo con la Tripulación Cracovia; comprobante a quien invitó o por WhatsApp |
 | Cancelar | Libera el número; para reasignarlo se genera un código nuevo |
 | Pago confirmado | Irreversible; si hubo un error se cancela con motivo y queda en el historial |
 | Precio | $700 MXN por número (migración 6). El sitio lo lee de la base, no está escrito en el código |

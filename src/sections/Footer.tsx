@@ -7,8 +7,8 @@ export function Footer() {
       <div className={`wrap ${styles.inner}`}>
         <p className={styles.thanks}>Gracias por ayudarme a llegar más lejos.</p>
         <p className={styles.meta}>
-          Rifa organizada por {site.organizer}. Los pagos se reciben y confirman de forma personal; este sitio
-          nunca te pedirá datos bancarios.
+          Rifa organizada por {site.organizer}. Cada pago se confirma de forma personal; este sitio nunca te pedirá
+          tus datos bancarios ni contraseñas.
         </p>
       </div>
     </footer>

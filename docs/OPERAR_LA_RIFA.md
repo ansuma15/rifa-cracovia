@@ -44,8 +44,17 @@ Si alguien pierde su código: **Revocar** y genera uno nuevo para ese número.
 
 ## 3. Cobrar
 
-Cuando la persona registra su número, aparece en **Números** → **Por cobrar** (filtro
-predeterminado) y el panel se actualiza solo.
+Cuando la persona reserva su número, aparece en **Números** → **Por cobrar** (filtro
+predeterminado) y el panel se actualiza solo. Cada fila muestra:
+
+- **vence en …**: cuánto le queda del plazo de 72 horas (en ámbar cuando faltan menos de 12).
+- **correo y teléfono**, si los dejó (opcionales). Tócalos para escribirle o llamarle.
+
+Si el plazo vence sin pago, la reserva se cancela sola, el número vuelve a quedar libre y el
+código usado deja de servir. Si esa persona todavía lo quiere, genera un código nuevo.
+El plazo se cambia en **Ajustes → Horas para pagar una reserva** (aplica a reservas nuevas).
+
+Los comprobantes llegan a la Tripulación Cracovia o a tu WhatsApp; con eso confirmas el pago.
 
 Cuando recibas el dinero: **Marcar pagado** → el monto ya viene con el precio ($700) →
 agrega una nota (efectivo, transferencia…) → **Confirmar pago**.

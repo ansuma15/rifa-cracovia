@@ -33,11 +33,12 @@ export function parseNumberList(input: string): ParseResult {
 }
 
 /** Mensaje listo para mandar por WhatsApp junto con el código. */
-export function deliveryMessage(number: NumberId, code: string, siteUrl: string): string {
+export function deliveryMessage(number: NumberId, code: string, siteUrl: string, hours: number | null = 72): string {
   return (
     `¡Gracias por participar en mi rifa! 🎟️\n` +
     `Tu número es el *${number}* y tu código es: *${code}*\n` +
-    `Regístralo aquí: ${siteUrl}\n` +
+    `Resérvalo aquí: ${siteUrl}\n` +
+    (hours != null ? `Después tendrás ${hours} horas para hacer tu pago.\n` : "") +
     `(El código solo sirve para el ${number} y una sola vez.)`
   );
 }

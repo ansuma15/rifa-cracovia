@@ -97,8 +97,12 @@ class Client:
             cur.execute(query, params)
             return cur.fetchall()
 
-    def claim(self, number: str, name: str, code: str) -> dict:
-        return self.one("select public.claim_number(%s, %s, %s)", (number, name, code))
+    def claim(self, number: str, name: str, code: str, email: str | None = None,
+              phone: str | None = None) -> dict:
+        if email is None and phone is None:
+            # Llamada con 3 argumentos: así lo hace una versión anterior del sitio.
+            return self.one("select public.claim_number(%s, %s, %s)", (number, name, code))
+        return self.one("select public.claim_number(%s, %s, %s, %s, %s)", (number, name, code, email, phone))
 
     def close(self):
         self.conn.close()

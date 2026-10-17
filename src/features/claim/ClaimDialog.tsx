@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { claimNumber } from "../../lib/api";
+import { contactErrors, deadlineText, holdHours, hoursText } from "../../lib/format";
+import { PaymentInfo } from "../payment/PaymentInfo";
 import type { BoardNumber, ClaimError, ClaimOutcome, NumberId, PublicConfig } from "../../lib/types";
 import { formatPrice } from "../../lib/usePublicConfig";
-import { site } from "../../content";
 import styles from "./ClaimDialog.module.css";
 
 interface Props {
@@ -16,10 +17,11 @@ interface Props {
 
 const ERROR_TEXT: Record<ClaimError, string> = {
   invalid_input: "Revisa tu nombre y el código: parece que algo está mal escrito.",
-  number_unavailable: "Alguien registró este número hace un momento. Elige otro en el tablero.",
+  invalid_contact: "Revisa tu correo o teléfono. Si prefieres, déjalos en blanco: son opcionales.",
+  number_unavailable: "Alguien reservó este número hace un momento. Elige otro en el tablero.",
   invalid_code: "Ese código no es válido para este número. Verifica que sea el que te dieron para este número.",
   rate_limited: "Hubo demasiados intentos con códigos incorrectos. Espera 15 minutos e inténtalo de nuevo.",
-  raffle_closed: "El registro de números está cerrado.",
+  raffle_closed: "La reserva de números está cerrada.",
 };
 
 // Mismas reglas que el servidor (private.clean_first_name / normalize_code).
@@ -45,12 +47,16 @@ type View =
 
 export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
   const price = formatPrice(config);
+  const hours = holdHours(config);
   const ref = useRef<HTMLDialogElement>(null);
   const [view, setView] = useState<View>({ kind: "form" });
   const [openedId, setOpenedId] = useState<NumberId | null>(null);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
+  const [contactError, setContactError] = useState<{ email?: string; phone?: string }>({});
 
   // Abrir/cerrar el <dialog> nativo según haya número seleccionado.
   useEffect(() => {
@@ -61,7 +67,10 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
       setView(number.status === "available" ? { kind: "form" } : { kind: "info" });
       setName("");
       setCode("");
+      setEmail("");
+      setPhone("");
       setFieldError(null);
+      setContactError({});
       d.showModal();
     } else if (!number && d.open) {
       d.close();
@@ -86,12 +95,20 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
       setFieldError("El código tiene 12 caracteres, por ejemplo K7QF-M2XR-9WTB.");
       return;
     }
+    const ce = contactErrors(email, phone);
+    setContactError(ce);
+    if (ce.email || ce.phone) {
+      setFieldError(null);
+      return;
+    }
     setFieldError(null);
     setView({ kind: "submitting" });
-    const outcome = await claimNumber(openedId, n, c);
+    const outcome = await claimNumber(openedId, n, c, { email, phone });
     setView({ kind: "done", outcome });
     onSettled();
   };
+
+  const locked = submitting || takenMeanwhile;
 
   return (
     <dialog
@@ -118,16 +135,21 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
           {(view.kind === "form" || view.kind === "submitting") && (
             <form onSubmit={onSubmit} noValidate>
               <h2 id="claim-title" className={styles.title}>
-                Registrar el número {openedId}
+                Reservar el número {openedId}
               </h2>
               <p className={styles.help}>
-                Escribe tu nombre de pila y el código que te entregó {site.organizer} para este número.
-                {price && <> El número cuesta <strong>{price}</strong> y lo pagas directamente a {site.organizer}.</>}
+                Escribe tu nombre de pila y el código que te dieron para este número.
+                {price && (
+                  <>
+                    {" "}
+                    El número cuesta <strong>{price}</strong>.
+                  </>
+                )}
               </p>
 
               {takenMeanwhile && (
                 <p className={styles.alert} role="alert">
-                  Este número acaba de ser registrado por otra persona. Cierra y elige otro.
+                  Este número acaba de ser reservado por otra persona. Cierra y elige otro.
                 </p>
               )}
 
@@ -139,7 +161,7 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
                   autoComplete="given-name"
                   maxLength={40}
                   required
-                  disabled={submitting || takenMeanwhile}
+                  disabled={locked}
                 />
                 <small>Es lo único que se mostrará en el tablero.</small>
               </label>
@@ -155,9 +177,58 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
                   placeholder="XXXX-XXXX-XXXX"
                   className={styles.codeInput}
                   required
-                  disabled={submitting || takenMeanwhile}
+                  disabled={locked}
                 />
               </label>
+
+              <fieldset className={styles.contact} disabled={locked}>
+                <legend>
+                  ¿Cómo te avisamos si ganas? <span className={styles.optional}>Opcional</span>
+                </legend>
+                <p className={styles.contactHelp}>Déjanos un correo, un teléfono o ambos. No se publican.</p>
+                <label className={styles.field}>
+                  <span>Correo</span>
+                  <input
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (contactError.email) setContactError((c) => ({ ...c, email: undefined }));
+                    }}
+                    maxLength={120}
+                    aria-invalid={Boolean(contactError.email)}
+                    aria-describedby={contactError.email ? "err-email" : undefined}
+                  />
+                  {contactError.email && (
+                    <small id="err-email" className={styles.fieldError}>
+                      {contactError.email}
+                    </small>
+                  )}
+                </label>
+                <label className={styles.field}>
+                  <span>Teléfono o WhatsApp</span>
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    value={phone}
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      if (contactError.phone) setContactError((c) => ({ ...c, phone: undefined }));
+                    }}
+                    maxLength={25}
+                    aria-invalid={Boolean(contactError.phone)}
+                    aria-describedby={contactError.phone ? "err-phone" : undefined}
+                  />
+                  {contactError.phone && (
+                    <small id="err-phone" className={styles.fieldError}>
+                      {contactError.phone}
+                    </small>
+                  )}
+                </label>
+              </fieldset>
 
               {fieldError && (
                 <p className={styles.alert} role="alert">
@@ -165,19 +236,32 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
                 </p>
               )}
 
+              {hours != null && (
+                <p className={styles.notice}>
+                  Tu número quedará apartado por <strong>{hoursText(hours)}</strong>. Si no se recibe tu pago en ese
+                  plazo, la reserva se cancela y el número podría ya no estar disponible.
+                </p>
+              )}
+
               <div className={styles.actions}>
                 <button type="button" className="btn btn-ghost" onClick={() => ref.current?.close()} disabled={submitting}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn btn-primary" disabled={submitting || takenMeanwhile}>
-                  {submitting ? "Registrando…" : `Registrar el ${openedId}`}
+                <button type="submit" className="btn btn-primary" disabled={locked}>
+                  {submitting ? "Reservando…" : `Reservar el ${openedId}`}
                 </button>
               </div>
             </form>
           )}
 
           {view.kind === "done" && (
-            <ResultView outcome={view.outcome} id={openedId} onClose={() => ref.current?.close()} />
+            <ResultView
+              outcome={view.outcome}
+              id={openedId}
+              price={price}
+              hours={hours}
+              onClose={() => ref.current?.close()}
+            />
           )}
         </div>
       )}
@@ -194,7 +278,7 @@ function InfoView({ number }: { number: BoardNumber }) {
       <p className={styles.help}>
         {number.status === "paid" && "Pago confirmado. Este número ya está participando."}
         {number.status === "reserved" && "Reservado, en espera de que se confirme el pago."}
-        {number.status === "available" && "Cierra esta ventana y vuelve a tocarlo para registrarlo."}
+        {number.status === "available" && "Cierra esta ventana y vuelve a tocarlo para reservarlo."}
       </p>
       <div className={styles.actions}>
         <form method="dialog">
@@ -205,23 +289,46 @@ function InfoView({ number }: { number: BoardNumber }) {
   );
 }
 
-function ResultView({ outcome, id, onClose }: { outcome: ClaimOutcome; id: NumberId; onClose: () => void }) {
+interface ResultProps {
+  outcome: ClaimOutcome;
+  id: NumberId;
+  price: string | null;
+  hours: number | null;
+  onClose: () => void;
+}
+
+function ResultView({ outcome, id, price, hours, onClose }: ResultProps) {
   if (outcome.kind === "server" && outcome.result.ok) {
     const r = outcome.result;
     const amount =
       r.price != null
-        ? new Intl.NumberFormat("es-MX", { style: "currency", currency: r.currency }).format(r.price)
-        : null;
+        ? new Intl.NumberFormat("es-MX", { style: "currency", currency: r.currency, maximumFractionDigits: 0 }).format(
+            Number(r.price),
+          )
+        : price;
     return (
       <div role="status">
         <h2 id="claim-title" className={styles.title}>
-          ¡Listo, {r.first_name}! El {id} está reservado a tu nombre
+          ¡Gracias por ayudarme, {r.first_name}!
         </h2>
         <p className={styles.help}>
-          Tu reserva queda <strong>pendiente de pago</strong>. Cuando {site.organizer} confirme tu pago, el número
-          aparecerá como ocupado.
-          {amount && <> Monto a pagar: <strong>{amount}</strong>.</>}
+          Tu número <strong>{id}</strong> quedó reservado
+          {hours != null && (
+            <>
+              {" "}
+              por <strong>{hoursText(hours)}</strong>
+            </>
+          )}{" "}
+          para que puedas realizar tu pago
+          {r.expires_at && <> (tienes hasta el {deadlineText(r.expires_at)})</>}. En cuanto me compartas tu comprobante
+          de pago, el número quedará bloqueado para ti.
         </p>
+
+        <div className={styles.payBox}>
+          <p className={styles.payTitle}>Cómo pagar</p>
+          <PaymentInfo price={amount} number={id} name={r.first_name} variant="compact" />
+        </div>
+
         <div className={styles.actions}>
           <button className="btn btn-primary" onClick={onClose}>
             Volver al tablero
@@ -231,13 +338,13 @@ function ResultView({ outcome, id, onClose }: { outcome: ClaimOutcome; id: Numbe
     );
   }
 
-  let title = "No se pudo registrar";
+  let title = "No se pudo reservar";
   let text: string;
   if (outcome.kind === "server" && !outcome.result.ok) {
     text = ERROR_TEXT[outcome.result.error];
     if (outcome.result.error === "number_unavailable") title = "Este número ya no está disponible";
   } else if (outcome.kind === "unknown") {
-    title = "No pudimos confirmar tu registro";
+    title = "No pudimos confirmar tu reserva";
     text = `${outcome.message} Antes de intentarlo otra vez, revisa en el tablero si el ${id} ya aparece a tu nombre.`;
   } else {
     text = "La rifa todavía no está conectada. Inténtalo más tarde.";

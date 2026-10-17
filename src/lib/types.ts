@@ -25,6 +25,7 @@ export interface PublicConfig {
 
 export type ClaimError =
   | "invalid_input"
+  | "invalid_contact"
   | "raffle_closed"
   | "rate_limited"
   | "number_unavailable"

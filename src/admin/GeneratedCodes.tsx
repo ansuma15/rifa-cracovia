@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { GeneratedCode } from "./api";
 import { codesToCsv, deliveryMessage } from "./numbers";
+import { holdHours } from "../lib/format";
+import { usePublicConfig } from "../lib/usePublicConfig";
 import styles from "./Admin.module.css";
 
 /** Dirección del sitio público (la carpeta superior a /admin/). */
@@ -14,6 +16,7 @@ export function GeneratedCodes({ codes, onDismiss }: { codes: GeneratedCode[]; o
   const [copied, setCopied] = useState<string | null>(null);
   const [downloaded, setDownloaded] = useState(false);
   const site = publicSiteUrl();
+  const hours = holdHours(usePublicConfig());
 
   const copy = async (key: string, text: string) => {
     try {
@@ -76,7 +79,7 @@ export function GeneratedCodes({ codes, onDismiss }: { codes: GeneratedCode[]; o
               {copied === c.code_id ? "Copiado" : "Copiar código"}
             </button>
             {/* Sin enlace wa.me: pondría el código en una URL. Se copia y se pega en el chat. */}
-            <button className={styles.smallBtn} onClick={() => void copy(`${c.code_id}-msg`, deliveryMessage(c.number_id, c.code, site))}>
+            <button className={styles.smallBtn} onClick={() => void copy(`${c.code_id}-msg`, deliveryMessage(c.number_id, c.code, site, hours))}>
               {copied === `${c.code_id}-msg` ? "Mensaje copiado" : "Copiar mensaje para WhatsApp"}
             </button>
           </li>

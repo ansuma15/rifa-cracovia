@@ -40,7 +40,7 @@ export function NumbersTab({ numbers, run, generate }: Props) {
       if (filter !== "all" && n.status !== filter) return false;
       if (!q) return true;
       if (/^\d{1,2}$/.test(q)) return n.number_id === q.padStart(2, "0");
-      return fold(n.first_name ?? "").includes(q) || fold(n.contact ?? "").includes(q);
+      return [n.first_name, n.email, n.phone].some((v) => fold(v ?? "").includes(q));
     });
   }, [numbers, filter, query]);
 
@@ -64,8 +64,8 @@ export function NumbersTab({ numbers, run, generate }: Props) {
         <input
           className={styles.search}
           type="search"
-          placeholder="Buscar número, nombre o contacto"
-          aria-label="Buscar número, nombre o contacto"
+          placeholder="Buscar número, nombre, correo o teléfono"
+          aria-label="Buscar número, nombre, correo o teléfono"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -92,11 +92,16 @@ export function NumbersTab({ numbers, run, generate }: Props) {
                     (n.active_code_id
                       ? `Código generado${n.active_code_delivered ? " y entregado" : ", sin entregar"}`
                       : "Sin código")}
-                  {n.status === "reserved" && `Reservado: ${fmtDate(n.reserved_at)}`}
+                  {n.status === "reserved" && <Deadline reservedAt={n.reserved_at} expiresAt={n.expires_at} />}
                   {n.status === "paid" &&
                     `Pagado: ${fmtDate(n.paid_at)}${n.amount_paid != null ? ` · $${Number(n.amount_paid).toLocaleString("es-MX")}` : ""}`}
-                  {n.contact && ` · ${n.contact}`}
                 </p>
+                {(n.email || n.phone) && (
+                  <p className={styles.rowContact}>
+                    {n.email && <a href={`mailto:${n.email}`}>{n.email}</a>}
+                    {n.phone && <a href={`tel:${n.phone}`}>{n.phone}</a>}
+                  </p>
+                )}
                 {(n.notes || n.payment_note) && <p className={styles.rowNote}>{[n.payment_note, n.notes].filter(Boolean).join(" · ")}</p>}
               </div>
               <div className={styles.rowActions}>
@@ -143,7 +148,8 @@ function ActionModal({ action, onClose, run }: { action: Action | null; onClose:
   const [amount, setAmount] = useState(defaultAmount);
   const [text, setText] = useState("");
   const [name, setName] = useState("");
-  const [contact, setContact] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
 
   // Reinicia el formulario al abrir otra acción.
   const key = action ? `${action.kind}-${action.n.number_id}` : "";
@@ -152,7 +158,8 @@ function ActionModal({ action, onClose, run }: { action: Action | null; onClose:
     setLastKey(key);
     setText(action?.kind === "edit" ? action.n.notes ?? "" : "");
     setName(action?.n.first_name ?? "");
-    setContact(action?.n.contact ?? "");
+    setEmail(action?.n.email ?? "");
+    setPhone(action?.n.phone ?? "");
     setAmount(defaultAmount);
   }
 
@@ -169,7 +176,7 @@ function ActionModal({ action, onClose, run }: { action: Action | null; onClose:
     } else if (action.kind === "cancel") {
       ok = await run(`El ${n.number_id} quedó libre`, () => adminApi.cancel(n.number_id, text));
     } else if (action.kind === "edit") {
-      ok = await run(`Datos del ${n.number_id} actualizados`, () => adminApi.updateParticipant(n.number_id, name, contact, text));
+      ok = await run(`Datos del ${n.number_id} actualizados`, () => adminApi.updateParticipant(n.number_id, name, email, phone, text));
     } else if (action.kind === "revoke" && n.active_code_id) {
       const id = n.active_code_id;
       ok = await run(`Código del ${n.number_id} revocado`, () => adminApi.revokeCode(id, text));
@@ -226,8 +233,12 @@ function ActionModal({ action, onClose, run }: { action: Action | null; onClose:
               <input value={name} onChange={(e) => setName(e.target.value)} maxLength={40} required />
             </label>
             <label className={styles.field}>
-              <span>Contacto (privado)</span>
-              <input value={contact} onChange={(e) => setContact(e.target.value)} maxLength={120} placeholder="Teléfono o cómo localizarle" />
+              <span>Correo (privado)</span>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={120} />
+            </label>
+            <label className={styles.field}>
+              <span>Teléfono (privado)</span>
+              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={25} />
             </label>
             <label className={styles.field}>
               <span>Notas (privadas)</span>
@@ -261,5 +272,23 @@ function ActionModal({ action, onClose, run }: { action: Action | null; onClose:
         </div>
       </form>
     </Modal>
+  );
+}
+
+/**
+ * "Reservado: 15 oct, 6:44 p.m. · vence en 2 d 5 h". Si ya venció y el
+ * proceso automático aún no lo libera (corre cada minuto), lo indica.
+ */
+function Deadline({ reservedAt, expiresAt }: { reservedAt: string | null; expiresAt: string | null }) {
+  const base = `Reservado: ${fmtDate(reservedAt)}`;
+  if (!expiresAt) return <>{base} · sin vencimiento</>;
+  const ms = Date.parse(expiresAt) - Date.now();
+  if (ms <= 0) return <>{base} · <strong className={styles.overdue}>plazo vencido, se libera en un momento</strong></>;
+  const h = Math.floor(ms / 3_600_000);
+  const left = h >= 24 ? `${Math.floor(h / 24)} d ${h % 24} h` : h >= 1 ? `${h} h` : `${Math.max(1, Math.round(ms / 60_000))} min`;
+  return (
+    <>
+      {base} · vence en <strong className={h < 12 ? styles.overdue : undefined}>{left}</strong>
+    </>
   );
 }

@@ -1,0 +1,126 @@
+.wrap {
+  display: grid;
+  gap: 0;
+}
+
+.method,
+.receipt {
+  padding-block: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.method:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.methodTitle {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.label {
+  margin-top: 0.6rem;
+  font-size: var(--text-s);
+  color: var(--ice-dim);
+}
+
+.clabeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  margin-top: 0.2rem;
+}
+
+/* La CLABE es el dato más importante de la sección: grande, en cifras
+   de ancho fijo y agrupada de 4 en 4 para dictarla sin errores. */
+.clabe {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.55rem, 5.5vw, 1.9rem);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+  user-select: all;
+}
+
+.copy {
+  min-height: 40px;
+  padding: 0 0.9rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--seat);
+  background: rgb(76 141 255 / 0.1);
+  font-weight: 700;
+  font-size: var(--text-s);
+  cursor: pointer;
+}
+
+.copy:hover {
+  background: var(--seat-glow);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.9rem;
+  margin: 0.8rem 0 0;
+  font-size: var(--text-s);
+}
+
+.facts div {
+  display: contents;
+}
+
+.facts dt {
+  color: var(--ice-dim);
+}
+
+.facts dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.text {
+  margin-top: 0.4rem;
+  color: var(--ice-dim);
+  font-size: var(--text-s);
+  line-height: 1.55;
+}
+
+.text strong {
+  color: var(--ice);
+}
+
+.receipt .text {
+  margin-top: 0;
+}
+
+.wa {
+  margin-top: 0.75rem;
+  font-size: var(--text-s);
+  white-space: nowrap;
+}
+
+.hint {
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--ticket);
+}
+
+/* Versión dentro del mensaje de reserva: más compacta */
+.compact .method,
+.compact .receipt {
+  padding-block: 0.8rem;
+}
+
+.compact .methodTitle {
+  font-size: 1.15rem;
+}
+
+.compact .wa {
+  width: 100%;
+  padding-inline: 0.75rem;
+}

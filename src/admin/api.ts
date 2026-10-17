@@ -8,7 +8,8 @@ export interface AdminNumber {
   status: PublicStatus;
   participation_id: string | null;
   first_name: string | null;
-  contact: string | null;
+  email: string | null;
+  phone: string | null;
   notes: string | null;
   reserved_at: string | null;
   expires_at: string | null;
@@ -70,6 +71,7 @@ export function explainError(message: string): string {
   if (message.includes("no_active_participation")) return "Ese número ya no tiene una participación activa.";
   if (message.includes("reason_required")) return "Escribe el motivo de la cancelación.";
   if (message.includes("amount_required")) return "Indica el monto recibido.";
+  if (message.includes("invalid_contact")) return "Revisa el correo o el teléfono (10 dígitos), o déjalos vacíos.";
   if (message.includes("invalid_first_name")) return "El nombre solo puede tener letras, espacios, apóstrofo, punto o guion (máximo 40).";
   if (message.includes("code_not_revocable") || message.includes("code_not_pending"))
     return "Ese código ya se usó o ya estaba revocado.";
@@ -97,11 +99,12 @@ export const adminApi = {
   markPaid: (n: NumberId, amount: number | null, note: string) =>
     rpc<void>("admin_mark_paid", { p_number: n, p_amount: amount, p_note: note || null }),
   cancel: (n: NumberId, reason: string) => rpc<void>("admin_cancel_participation", { p_number: n, p_reason: reason }),
-  updateParticipant: (n: NumberId, firstName: string, contact: string, notes: string) =>
+  updateParticipant: (n: NumberId, firstName: string, email: string, phone: string, notes: string) =>
     rpc<void>("admin_update_participant", {
       p_number: n,
       p_first_name: firstName,
-      p_contact: contact || null,
+      p_email: email.trim() || null,
+      p_phone: phone.trim() || null,
       p_notes: notes || null,
     }),
   updateSettings: (patch: Record<string, unknown>) => rpc<unknown>("admin_update_settings", { p_patch: patch }),

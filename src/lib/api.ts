@@ -37,14 +37,17 @@ export async function claimNumber(
   number: NumberId,
   firstName: string,
   code: string,
+  contact: { email?: string; phone?: string } = {},
 ): Promise<ClaimOutcome> {
   if (!supabase) return { kind: "not_configured" };
   try {
-    const { data, error } = await supabase.rpc("claim_number", {
-      p_number: number,
-      p_first_name: firstName,
-      p_code: code,
-    });
+    // Correo y teléfono son opcionales y privados. Solo se envían si se
+    // escribieron: así el registro sin contacto funciona incluso con una base
+    // de datos que aún no tenga la migración 7.
+    const args: Record<string, string> = { p_number: number, p_first_name: firstName, p_code: code };
+    if (contact.email?.trim()) args.p_email = contact.email.trim();
+    if (contact.phone?.trim()) args.p_phone = contact.phone.trim();
+    const { data, error } = await supabase.rpc("claim_number", args);
     if (error) {
       return {
         kind: "unknown",

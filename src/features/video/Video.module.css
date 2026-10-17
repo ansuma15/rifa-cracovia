@@ -1,0 +1,72 @@
+/* Marco 16:9 con la misma piel que la sala de cine del tablero */
+.frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-l);
+  overflow: hidden;
+  background:
+    radial-gradient(70% 60% at 50% 0%, rgb(76 141 255 / 0.18), transparent 75%),
+    var(--night-deep);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+  background: #000;
+}
+
+.facade {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.play {
+  position: relative; /* por encima de la portada */
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--seat);
+  color: #05112a;
+  box-shadow: 0 0 0 10px rgb(76 141 255 / 0.25);
+  transition: transform 150ms;
+}
+
+.play svg {
+  width: 2rem;
+  margin-left: 0.2rem; /* centro óptico del triángulo */
+}
+
+.facade:hover .play,
+.facade:focus-visible .play {
+  transform: scale(1.06);
+}
+
+.placeholder {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.9rem;
+  color: var(--ice-dim);
+  font-size: var(--text-s);
+}
+
+.placeholder .play {
+  background: transparent;
+  color: var(--seat);
+  border: 2px solid var(--seat);
+  box-shadow: none;
+}

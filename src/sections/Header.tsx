@@ -4,7 +4,7 @@ const LINKS = [
   { href: "#premio", label: "Premio" },
   { href: "#proposito", label: "Propósito" },
   { href: "#numeros", label: "Números" },
-  { href: "#reglas", label: "Reglas" },
+  { href: "#participar", label: "Participar" },
 ];
 
 export function Header() {

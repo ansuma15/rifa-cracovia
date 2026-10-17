@@ -270,6 +270,20 @@
 .rowNote {
   font-style: italic;
 }
+.rowContact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1rem;
+  font-size: var(--text-s);
+}
+.rowContact a {
+  color: var(--seat);
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+.overdue {
+  color: var(--ticket);
+}
 .pill {
   font-size: 0.75rem;
   padding: 0.1rem 0.55rem;

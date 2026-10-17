@@ -98,6 +98,86 @@
   letter-spacing: 0.08em;
 }
 
+/* Contacto opcional: agrupado y visualmente secundario */
+.contact {
+  margin: 1.4rem 0 0;
+  padding: 1rem 1rem 1.1rem;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-m);
+}
+
+/* La leyenda se comporta como un título normal, alineado a la izquierda
+   (por defecto los navegadores la incrustan centrada en el borde). */
+.contact legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  font-weight: 700;
+}
+
+.contact legend + * {
+  clear: both;
+}
+
+.optional {
+  margin-left: 0.35rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--ice-dim);
+  font-size: 0.75rem;
+  font-weight: 700;
+  vertical-align: 0.1em;
+}
+
+.contactHelp {
+  padding-top: 0.25rem;
+  color: var(--ice-dim);
+  font-size: var(--text-s);
+}
+
+.contact .field:first-of-type {
+  margin-top: 0.6rem;
+}
+
+.fieldError {
+  color: #ffb4b4 !important;
+}
+
+.field input[aria-invalid="true"] {
+  border-color: #b54a55;
+}
+
+/* Plazo de la reserva, en el color de "reservado" */
+.notice {
+  margin-top: 1.1rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--ticket);
+  border-radius: var(--radius-s);
+  background: rgb(245 185 66 / 0.08);
+  color: #ffe3a6;
+  font-size: var(--text-s);
+}
+
+.notice strong {
+  color: var(--ticket);
+}
+
+.payBox {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: var(--radius-m);
+  background: var(--night);
+  border: 1px solid var(--line);
+}
+
+.payTitle {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+}
+
 .alert {
   margin-top: 1rem;
   padding: 0.75rem 0.9rem;

@@ -1,27 +1,42 @@
 import { purpose } from "../content";
+import { Video } from "../features/video/Video";
 import styles from "./Purpose.module.css";
 
+/**
+ * Responde dos preguntas en orden: ¿qué necesito? y ¿por qué lo necesito?
+ * Preguntas a la izquierda, respuestas a la derecha; en celular, una
+ * debajo de la otra.
+ */
 export function Purpose() {
   return (
-    <section id="proposito" className={styles.section} aria-labelledby="proposito-titulo">
-      <div className={`wrap ${styles.grid}`}>
-        <div className={styles.text}>
-          <h2 id="proposito-titulo">{purpose.heading}</h2>
-          {purpose.body.map((p) => (
-            <p key={p.slice(0, 24)}>{p}</p>
-          ))}
+    <section id="proposito" className={styles.section} aria-labelledby="que-necesito">
+      <div className="wrap">
+        <div className={styles.row}>
+          <div className={styles.question}>
+            <h2 id="que-necesito">{purpose.need.title}</h2>
+            <p>{purpose.need.intro}</p>
+          </div>
+          <div className={styles.answer}>
+            <RouteMap />
+            <ul className={styles.uses} aria-label="En qué se usará lo recaudado">
+              {purpose.uses.map((u) => (
+                <li key={u.title}>
+                  <strong>{u.title}</strong>
+                  <span>{u.detail}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div className={styles.side}>
-          <RouteMap />
-          <ul className={styles.uses} aria-label="En qué se usará lo recaudado">
-            {purpose.uses.map((u) => (
-              <li key={u.title}>
-                <strong>{u.title}</strong>
-                <span>{u.detail}</span>
-              </li>
-            ))}
-          </ul>
+        <div className={styles.row}>
+          <div className={styles.question}>
+            <h2 id="por-que">{purpose.why.title}</h2>
+            <p>{purpose.why.intro}</p>
+          </div>
+          <div className={styles.answer}>
+            <Video />
+          </div>
         </div>
       </div>
     </section>

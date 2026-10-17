@@ -37,5 +37,7 @@ describe("entrega de códigos", () => {
     expect(m).toContain("*25*");
     expect(m).toContain("ABCD-EFGH-JKMN");
     expect(m).toContain("https://ejemplo.github.io/rifa/");
+    expect(m).toContain("72 horas");
+    expect(m).toContain("Resérvalo");
   });
 });
