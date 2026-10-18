@@ -4,17 +4,10 @@
 export const site = {
   title: "Una rifa, una oportunidad para llegar más lejos",
   subtitle: "Ayúdame a llegar a Cracovia, Polonia, y participa por increíbles premios.",
-  organizer: "Jesús Antonio",
+  organizer: "Antonio Suarez",
 };
 
-/**
- * Ajuste fino de una foto dentro de su marco (todo opcional):
- *   x:    mueve la foto en horizontal, en % de su ancho. Negativo = izquierda, positivo = derecha.
- *   y:    mueve la foto en vertical, en % de su alto. Negativo = arriba, positivo = abajo.
- *   zoom: agranda la foto (1 = tamaño normal, 1.15 = 15 % más grande). Útil si la foto
- *         trae mucho margen vacío alrededor; lo que sobresale del marco se recorta.
- * Ejemplo: si la TV se ve cargada a la derecha → { x: -5 }.
- */
+
 export interface PhotoAdjust {
   x?: number;
   y?: number;
@@ -28,9 +21,9 @@ export const prize = {
   items: [
     {
       name: "Televisión Samsung de 75 pulgadas",
-      // Coloca la foto en public/premios/ y escribe aquí el nombre del archivo.
+
       image: "Tv.webp" as string | null,
-      adjust: {} as PhotoAdjust, // p. ej. { x: -5, zoom: 1.1 }
+      adjust: {} as PhotoAdjust, 
       alt: "Televisión Samsung de 75 pulgadas",
     },
     {
@@ -66,6 +59,23 @@ export const purpose = {
   university: "AGH University of Krakow",
 };
 
+
+export const proofs = {
+  title: "Comprobantes (datos personales ocultos)",
+  items: [
+    {
+      file: "boleta.jpg" as string | null, 
+      label: "Boleta: promedio 9.79",
+      alt: "Boleta de calificaciones del IPN con promedio de 9.79, los datos personales están tapados je.",
+    },
+    {
+      file: "aceptacion-agh.jpg" as string | null, 
+      label: "Aceptación en AGH",
+      alt: "Captura de la aceptación al intercambio en AGH University of Krakow.",
+    },
+  ],
+};
+
 /**
  * Video horizontal (16:9). Usa UNA de las dos opciones:
  *  - youtube: el enlace del video, de preferencia "No listado". Ej. "https://youtu.be/AbCdEfGhIjK"
@@ -74,8 +84,8 @@ export const purpose = {
  */
 export const video = {
   youtube: null as string | null,
-  file: null as string | null,
-  poster: null as string | null,
+  file: "videop.mp4" as string | null,
+  poster: "portada.jpg" as string | null,
   title: "Quién soy y por qué esta rifa",
 };
 

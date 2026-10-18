@@ -21,6 +21,13 @@
   color: var(--ice-dim);
 }
 
+/* Columna derecha: "¿Por qué Cracovia?" y, debajo, los comprobantes */
+.side {
+  display: grid;
+  gap: 1.25rem;
+  align-content: start;
+}
+
 /* "¿Por qué Cracovia?" como tarjeta: separa visualmente las dos ideas
    y en celular corta el bloque de texto en dos piezas fáciles de leer. */
 .why {

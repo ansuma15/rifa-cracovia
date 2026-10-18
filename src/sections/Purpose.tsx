@@ -1,4 +1,5 @@
 import { purpose } from "../content";
+import { Proofs } from "../features/proofs/Proofs";
 import { Video } from "../features/video/Video";
 import styles from "./Purpose.module.css";
 
@@ -9,7 +10,7 @@ import styles from "./Purpose.module.css";
  * Computadora: arriba "¿Quién soy?" y "¿Por qué Cracovia?" lado a lado;
  * abajo, la ruta y los gastos a la izquierda y el video a la derecha.
  * Celular (el medio principal): una sola columna en el orden en que se lee
- * una historia — quién soy → por qué Cracovia → video → qué necesito → cierre. El mapa se
+ * una historia — quién soy → por qué Cracovia → comprobantes → video → qué necesito → cierre. El mapa se
  * cambia por una línea "Ciudad de México → Cracovia · 10,260 km" para no
  * saturar la pantalla.
  */
@@ -24,9 +25,12 @@ export function Purpose() {
             <p>{purpose.intro}</p>
           </header>
 
-          <div className={styles.why}>
-            <h3>{purpose.whyKrakow.title}</h3>
-            <p>{purpose.whyKrakow.text}</p>
+          <div className={styles.side}>
+            <div className={styles.why}>
+              <h3>{purpose.whyKrakow.title}</h3>
+              <p>{purpose.whyKrakow.text}</p>
+            </div>
+            <Proofs />
           </div>
         </div>
 
