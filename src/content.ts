@@ -103,7 +103,7 @@ export const teamList = (joiner: "o" | "y" = "o") =>
 
 export const payment = {
   clabe: "646990404078801466",
-  holder: "Jesús Antonio Suárez Martínez",
+  holder: "Antonio Suárez",
   /**
    * WhatsApp para recibir comprobantes: código de país + número, solo dígitos.
    * Ej. México: "525512345678". El número NO se escribe en la página; se usa
