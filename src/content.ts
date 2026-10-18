@@ -46,11 +46,15 @@ export const purpose = {
   heading: "Para qué es esta rifa",
   title: "¿Quién soy?",
   intro:
-    "Hola, soy estudiante del IPN con promedio de 9.79 y voy a estudiar un intercambio en AGH University of Krakow, en Polonia, un sueño por el que he trabajado cada noche y cada día. Para hacerlo realidad necesito reunir los fondos para tres gastos esenciales.",
+    `Hola, soy ${site.organizer}, estudiante de Ingeniería en Inteligencia Artificial en el IPN, con un promedio de 9.79. Soy una persona normal con sueños grandes, y me he esforzado día con día para alcanzarlos. Cada desvelo y cada hora de estudio me trajeron hasta aquí: voy a estudiar un intercambio en AGH University of Krakow, en Polonia.`,
+  whyKrakow: {
+    title: "¿Por qué Cracovia?",
+    text: "Porque AGH University of Krakow es una de las mejores opciones para hacer investigación científica, el camino que más me apasiona. Quiero innovar, crear nuevas implementaciones con inteligencia artificial y, con ellas, ayudar a transformar el mundo. Este intercambio es el siguiente paso para lograrlo.",
+  },
   closing:
     "Cada número que apartas o apoyo que me brindes me acerca un poco más a Cracovia y a una experiencia que estoy dispuesto a aprovechar al máximo.",
   videoCaption: "En este video te cuento quién soy y por qué este intercambio es tan importante para mí.",
-  usesTitle: "Lo que necesito cubrir",
+  usesTitle: "Para llegar necesito cubrir tres gastos",
   uses: [
     { title: "Vuelos", detail: "El primer paso: ida y vuelta entre Ciudad de México y Cracovia." },
     { title: "Seguro médico", detail: "Obligatorio para estudiar allá, y la tranquilidad de estar cubierto." },

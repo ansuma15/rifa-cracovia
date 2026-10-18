@@ -3,13 +3,13 @@ import { Video } from "../features/video/Video";
 import styles from "./Purpose.module.css";
 
 /**
- * ¿Quién soy? Una sola sección que junta la historia (video) con lo que
- * se necesita (ruta + tres gastos).
+ * ¿Quién soy? Una sola sección que junta la historia (presentación, por qué
+ * Cracovia y video) con lo que se necesita (ruta + tres gastos).
  *
- * Computadora: texto arriba; abajo, la ruta y los gastos a la izquierda y
- * el video a la derecha.
+ * Computadora: arriba "¿Quién soy?" y "¿Por qué Cracovia?" lado a lado;
+ * abajo, la ruta y los gastos a la izquierda y el video a la derecha.
  * Celular (el medio principal): una sola columna en el orden en que se lee
- * una historia — quién soy → video → qué necesito → cierre. El mapa se
+ * una historia — quién soy → por qué Cracovia → video → qué necesito → cierre. El mapa se
  * cambia por una línea "Ciudad de México → Cracovia · 10,260 km" para no
  * saturar la pantalla.
  */
@@ -18,10 +18,17 @@ export function Purpose() {
   return (
     <section id="quien-soy" className={styles.section} aria-labelledby="quien-soy-titulo">
       <div className="wrap">
-        <header className={styles.intro}>
-          <h2 id="quien-soy-titulo">{purpose.title}</h2>
-          <p>{purpose.intro}</p>
-        </header>
+        <div className={styles.about}>
+          <header className={styles.intro}>
+            <h2 id="quien-soy-titulo">{purpose.title}</h2>
+            <p>{purpose.intro}</p>
+          </header>
+
+          <div className={styles.why}>
+            <h3>{purpose.whyKrakow.title}</h3>
+            <p>{purpose.whyKrakow.text}</p>
+          </div>
+        </div>
 
         <div className={styles.layout}>
           <figure className={styles.story}>
@@ -30,6 +37,7 @@ export function Purpose() {
           </figure>
 
           <div className={styles.needs}>
+            <h3 className={styles.usesTitle}>{purpose.usesTitle}</h3>
             <RouteMap />
             <p className={styles.routeLine}>
               <span>{purpose.from}</span>
@@ -39,7 +47,6 @@ export function Purpose() {
               <strong>{km} km</strong>
             </p>
 
-            <h3 className={styles.usesTitle}>{purpose.usesTitle}</h3>
             <ul className={styles.uses}>
               {purpose.uses.map((u) => (
                 <li key={u.title}>

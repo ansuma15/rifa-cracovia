@@ -3,15 +3,39 @@
   background: linear-gradient(180deg, var(--night), #0d1d3a);
 }
 
-/* --- Presentación ------------------------------------------------- */
+/* --- Presentación: ¿Quién soy? | ¿Por qué Cracovia? --------------- */
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+}
+
 .intro {
   display: grid;
   gap: 0.75rem;
-  max-width: 62ch;
 }
 
-.intro p {
+.intro p,
+.why p {
   color: var(--ice-dim);
+}
+
+/* "¿Por qué Cracovia?" como tarjeta: separa visualmente las dos ideas
+   y en celular corta el bloque de texto en dos piezas fáciles de leer. */
+.why {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--seat);
+  border-radius: var(--radius-m);
+  background: var(--night-deep);
+}
+
+.why h3 {
+  font-size: 1.45rem;
+  line-height: 1.15;
 }
 
 /* --- Cuerpo: ruta y gastos | video --------------------------------
@@ -74,14 +98,10 @@
   display: none;
 }
 
-/* En computadora el mapa ya dice qué es; el título solo hace falta en celular */
 .usesTitle {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  margin-bottom: -0.5rem;
 }
 
 .uses {
@@ -126,6 +146,9 @@
 
 /* Tableta: una columna, el video primero y a todo lo ancho */
 @media (max-width: 860px) {
+  .about {
+    grid-template-columns: 1fr;
+  }
   .layout {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -162,17 +185,6 @@
     font-family: var(--font-display);
     font-size: 1.25rem;
     font-variant-numeric: tabular-nums;
-  }
-
-  .usesTitle {
-    position: static;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    clip-path: none;
-    white-space: normal;
-    font-size: 1.3rem;
-    margin-bottom: -0.5rem;
   }
 
   /* Los tres gastos como lista corta: nombre a la izquierda, detalle a la derecha */
