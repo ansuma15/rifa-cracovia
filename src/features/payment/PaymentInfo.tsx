@@ -55,6 +55,10 @@ export function PaymentInfo({ price, number, name, variant = "full" }: Props) {
         )}
         <dl className={styles.facts}>
           <div>
+            <dt>Banco</dt>
+            <dd>{payment.bank}</dd>
+          </div>
+          <div>
             <dt>Titular</dt>
             <dd>{payment.holder}</dd>
           </div>

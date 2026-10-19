@@ -61,7 +61,7 @@ export const purpose = {
 
 
 export const proofs = {
-  title: "Comprobantes (datos personales ocultos)",
+  title: "Comprobantes",
   items: [
     {
       file: "boleta.jpg" as string | null, 
@@ -76,12 +76,6 @@ export const proofs = {
   ],
 };
 
-/**
- * Video horizontal (16:9). Usa UNA de las dos opciones:
- *  - youtube: el enlace del video, de preferencia "No listado". Ej. "https://youtu.be/AbCdEfGhIjK"
- *  - file:    un .mp4 dentro de public/video/ (máx. ~50 MB), con su portada en `poster`.
- * Mientras ambos estén en null se muestra "Video próximamente".
- */
 export const video = {
   youtube: null as string | null,
   file: "videop.mp4" as string | null,
@@ -92,7 +86,7 @@ export const video = {
 /** Personas que invitan a la rifa: reciben comprobantes y pagos en efectivo. */
 export const team = {
   name: "Tripulación Cracovia",
-  members: ["Astrit", "Estefany", "Dede", "Luis Arturo", "Juan", "Norma"],
+  members: ["Astrit Suarez", "Estefany Suarez", "Erendira Perez", "Luis Arturo", "Juan Suarez", "Norma Martinez"],
 };
 
 /** "Astrti, Estefany, Dede, Luis Arturo, Juan o Norma" */
@@ -103,12 +97,8 @@ export const teamList = (joiner: "o" | "y" = "o") =>
 
 export const payment = {
   clabe: "646990404078801466",
+  bank: "STP",
   holder: "Antonio Suárez",
-  /**
-   * WhatsApp para recibir comprobantes: código de país + número, solo dígitos.
-   * Ej. México: "525512345678". El número NO se escribe en la página; se usa
-   * únicamente dentro del botón "Enviar comprobante por WhatsApp".
-   */
     whatsapp: "525610135623" as string | null,
 };
 
