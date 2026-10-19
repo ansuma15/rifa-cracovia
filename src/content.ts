@@ -97,7 +97,7 @@ export const teamList = (joiner: "o" | "y" = "o") =>
 
 export const payment = {
   clabe: "646990404078801466",
-  bank: "STP",
+  bank: "STP (Revolut)",
   holder: "Antonio Suárez",
     whatsapp: "525610135623" as string | null,
 };
