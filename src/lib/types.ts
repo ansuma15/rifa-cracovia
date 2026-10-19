@@ -21,15 +21,18 @@ export interface PublicConfig {
   price_per_number: number | null;
   currency: string;
   reservation_hours: number | null;
+  /** Números apartados sin pagar que puede tener un mismo teléfono. */
+  max_per_phone?: number;
 }
 
 export type ClaimError =
   | "invalid_input"
+  | "phone_required"
   | "invalid_contact"
   | "raffle_closed"
   | "rate_limited"
   | "number_unavailable"
-  | "invalid_code";
+  | "phone_limit";
 
 export type ClaimResult =
   | {
@@ -41,7 +44,7 @@ export type ClaimResult =
       price: number | null;
       currency: string;
     }
-  | { ok: false; error: ClaimError };
+  | { ok: false; error: ClaimError; limit?: number };
 
 /**
  * Resultado de intentar registrar, desde el punto de vista de la interfaz.

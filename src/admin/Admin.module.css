@@ -300,6 +300,21 @@
 .p_paid {
   background: rgb(102 128 173 / 0.3);
 }
+.p_verified {
+  background: rgb(61 220 151 / 0.16);
+  color: #8ff0c4;
+}
+.p_review {
+  border: 1px dashed var(--ticket);
+  color: #ffd98a;
+}
+/* Un teléfono con varios apartados sin pagar merece una revisión */
+.phoneWarn {
+  margin-top: 0.3rem;
+  font-size: var(--text-s);
+  font-weight: 700;
+  color: var(--ticket);
+}
 .rowActions {
   display: flex;
   flex-wrap: wrap;
@@ -308,7 +323,8 @@
 }
 .smallBtn,
 .smallBtnPrimary,
-.smallBtnDanger {
+.smallBtnDanger,
+.smallBtnWa {
   min-height: 40px;
   padding: 0 0.85rem;
   border-radius: 999px;
@@ -333,6 +349,23 @@
   border-color: #b54a55;
   color: #ffb4b4;
 }
+.smallBtnWa {
+  border-color: #25d366;
+  color: #8ff0b0;
+}
+.smallBtnWa:hover {
+  background: rgb(37 211 102 / 0.12);
+}
+/* Botones +24 / +48 / +72 h */
+.presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.presets button {
+  padding-inline: 0.5rem;
+  white-space: nowrap;
+}
 .btnDanger {
   background: #b54a55;
   color: #fff;
@@ -343,74 +376,6 @@
   color: var(--ice-dim);
   border: 1px dashed var(--line);
   border-radius: var(--radius-m);
-}
-
-/* --- Códigos ------------------------------------------------------ */
-.genForm {
-  display: grid;
-  gap: 0.6rem;
-  padding: 1rem;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-m);
-  max-width: 46rem;
-}
-.subhead {
-  margin: 1.75rem 0 0.6rem;
-  font-size: 1.45rem;
-}
-
-.generated {
-  margin-top: 1.25rem;
-  padding: 1rem;
-  border: 2px solid var(--ticket);
-  border-radius: var(--radius-l);
-  background: rgb(245 185 66 / 0.06);
-}
-.generatedHead {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 1rem;
-}
-.generatedHead h2 {
-  font-size: 1.6rem;
-}
-.generatedHead p {
-  color: #ffd98a;
-  font-size: var(--text-s);
-  max-width: 48ch;
-}
-.codeList {
-  list-style: none;
-  margin: 1rem 0 0;
-  padding: 0;
-  display: grid;
-  gap: 0.4rem;
-}
-.codeList li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.6rem;
-  background: var(--night);
-  border-radius: var(--radius-s);
-}
-.codeNum {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.4rem;
-  min-width: 2.2rem;
-}
-.code {
-  /* Monoespaciada: al dictar un código, 1/I y 0/O no deben confundirse */
-  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
-  font-weight: 700;
-  font-size: 1.2rem;
-  letter-spacing: 0.04em;
-  flex: 1 1 10rem;
-  user-select: all;
 }
 
 /* --- Historial ---------------------------------------------------- */

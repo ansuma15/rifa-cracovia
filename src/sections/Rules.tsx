@@ -1,6 +1,6 @@
-import { payment, rules, teamList } from "../content";
+import { rules, teamList } from "../content";
 import { PaymentInfo } from "../features/payment/PaymentInfo";
-import { codeRequestLink, holdHours, hoursText } from "../lib/format";
+import { holdHours, hoursText } from "../lib/format";
 import type { PublicConfig } from "../lib/types";
 import { formatPrice } from "../lib/usePublicConfig";
 import styles from "./Rules.module.css";
@@ -10,7 +10,7 @@ export function Rules({ config }: { config: PublicConfig | null }) {
   const hours = holdHours(config);
 
   const [reserve, pay] = rules.steps;
-  const codeLink = codeRequestLink(payment.whatsapp);
+  const perPhone = config?.max_per_phone ?? 5;
 
   return (
     <section id="participar" className={styles.section} aria-labelledby="participar-titulo">
@@ -29,16 +29,9 @@ export function Rules({ config }: { config: PublicConfig | null }) {
                     {" "}
                     Tu número queda apartado por <strong>{hoursText(hours)}</strong>.
                   </>
-                )}
+                )}{" "}
+                Con un mismo teléfono puedes apartar hasta <strong>{perPhone}</strong> números sin pagar.
               </p>
-              {codeLink && reserve?.codeHelp && (
-                <div className={styles.codeHelp}>
-                  <p>{reserve.codeHelp}</p>
-                  <a className="btn btn-ghost" href={codeLink} target="_blank" rel="noopener noreferrer">
-                    {reserve.codeButton}
-                  </a>
-                </div>
-              )}
             </li>
             <li>
               <h3>{pay?.title}</h3>
@@ -52,12 +45,20 @@ export function Rules({ config }: { config: PublicConfig | null }) {
             </li>
           </ol>
 
-          {hours != null && (
-            <p className={styles.warning} role="note">
-              <strong>Importante:</strong> cualquier número que no se haya pagado dentro de las {hoursText(hours)}{" "}
-              pierde su reserva. El número vuelve a quedar libre y no se garantiza que siga disponible.
-            </p>
-          )}
+          <div className={styles.warning} role="note">
+            <strong>Importante:</strong>
+            <ul>
+              {hours != null && (
+                <li>
+                  Cualquier número que no se haya pagado dentro de las {hoursText(hours)} pierde su reserva. El número
+                  vuelve a quedar libre y no se garantiza que siga disponible.
+                </li>
+              )}
+              {rules.policy.map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <div className={styles.side}>

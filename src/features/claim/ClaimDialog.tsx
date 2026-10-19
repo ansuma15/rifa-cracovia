@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { claimNumber } from "../../lib/api";
 import { payment } from "../../content";
-import { codeRequestLink, contactErrors, deadlineText, holdHours, hoursText } from "../../lib/format";
+import { contactErrors, deadlineText, holdHours, hoursText, whatsappLink } from "../../lib/format";
 import { PaymentInfo } from "../payment/PaymentInfo";
 import type { BoardNumber, ClaimError, ClaimOutcome, NumberId, PublicConfig } from "../../lib/types";
 import { formatPrice } from "../../lib/usePublicConfig";
@@ -16,29 +16,22 @@ interface Props {
   onSettled: () => void;
 }
 
-const ERROR_TEXT: Record<ClaimError, string> = {
-  invalid_input: "Revisa tu nombre y el código: parece que algo está mal escrito.",
-  invalid_contact: "Revisa tu correo o teléfono. Si prefieres, déjalos en blanco: son opcionales.",
-  number_unavailable: "Alguien reservó este número hace un momento. Elige otro en el tablero.",
-  invalid_code: "Ese código no es válido para este número. Verifica que sea el que te dieron para este número.",
-  rate_limited: "Hubo demasiados intentos con códigos incorrectos. Espera 15 minutos e inténtalo de nuevo.",
-  raffle_closed: "La reserva de números está cerrada.",
+const ERROR_TEXT: Record<ClaimError, (limit?: number) => string> = {
+  invalid_input: () => "Revisa tu nombre: escribe solo tu nombre de pila, con letras.",
+  phone_required: () => "Escribe tu WhatsApp: ahí te confirmamos tu pago.",
+  invalid_contact: () => "Revisa tu teléfono o tu correo: parece que algo está mal escrito.",
+  number_unavailable: () => "Alguien reservó este número hace un momento. Elige otro en el tablero.",
+  rate_limited: () =>
+    "Se apartaron muchos números desde esta conexión en poco tiempo. Espera un rato o escríbenos por WhatsApp.",
+  phone_limit: (limit) =>
+    `Este teléfono ya tiene ${limit ?? "el máximo de"} números apartados sin pagar. Paga alguno de ellos o escríbenos por WhatsApp si quieres apartar más.`,
+  raffle_closed: () => "La reserva de números está cerrada.",
 };
 
-// Mismas reglas que el servidor (private.clean_first_name / normalize_code).
+// Mismas reglas que el servidor (private.clean_first_name).
 // Aquí solo sirven para avisar antes de enviar; el servidor decide.
 const NAME_RE = /^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ' .-]*$/;
 const cleanName = (s: string) => s.trim().replace(/\s+/g, " ");
-const normalizeCode = (s: string) =>
-  s.toUpperCase().replace(/[^0-9A-Z]/g, "").replace(/O/g, "0").replace(/[IL]/g, "1");
-
-/** Muestra el código agrupado mientras se escribe: ABCD-EFGH-JKMN */
-const formatCodeInput = (s: string) =>
-  s
-    .toUpperCase()
-    .replace(/[^0-9A-Z]/g, "")
-    .slice(0, 12)
-    .replace(/(.{4})(?=.)/g, "$1-");
 
 type View =
   | { kind: "form" }
@@ -52,10 +45,9 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const [view, setView] = useState<View>({ kind: "form" });
   const [openedId, setOpenedId] = useState<NumberId | null>(null);
-  // El código es por número: el mensaje de WhatsApp ya dice cuál quiere.
-  const codeLink = codeRequestLink(payment.whatsapp, openedId ?? undefined);
   const [name, setName] = useState("");
-  const [code, setCode] = useState("");
+  // Trampa para robots: un campo que una persona nunca ve ni llena.
+  const [trap, setTrap] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
@@ -69,7 +61,7 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
       setOpenedId(number.id);
       setView(number.status === "available" ? { kind: "form" } : { kind: "info" });
       setName("");
-      setCode("");
+      setTrap("");
       setEmail("");
       setPhone("");
       setFieldError(null);
@@ -89,24 +81,24 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
     e.preventDefault();
     if (!number || !openedId) return;
     const n = cleanName(name);
-    const c = normalizeCode(code);
     if (n.length === 0 || n.length > 40 || !NAME_RE.test(n)) {
       setFieldError("Escribe solo tu nombre de pila, con letras (máximo 40).");
       return;
     }
-    if (c.length !== 12) {
-      setFieldError("El código tiene 12 caracteres, por ejemplo K7QF-M2XR-9WTB.");
-      return;
-    }
-    const ce = contactErrors(email, phone);
+    const ce = contactErrors(email, phone, { phoneRequired: true });
     setContactError(ce);
     if (ce.email || ce.phone) {
       setFieldError(null);
       return;
     }
     setFieldError(null);
+    if (trap) {
+      // Solo un programa llena el campo oculto: no se envía nada.
+      setView({ kind: "done", outcome: { kind: "unknown", message: "No se pudo enviar el registro." } });
+      return;
+    }
     setView({ kind: "submitting" });
-    const outcome = await claimNumber(openedId, n, c, { email, phone });
+    const outcome = await claimNumber(openedId, n, phone, email);
     setView({ kind: "done", outcome });
     onSettled();
   };
@@ -141,7 +133,7 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
                 Reservar el número {openedId}
               </h2>
               <p className={styles.help}>
-                Escribe tu nombre de pila y el código que te dieron para este número.
+                Escribe tu nombre de pila y tu WhatsApp.
                 {price && (
                   <>
                     {" "}
@@ -170,76 +162,69 @@ export function ClaimDialog({ number, config, onClose, onSettled }: Props) {
               </label>
 
               <label className={styles.field}>
-                <span>Código de autorización</span>
+                <span>WhatsApp</span>
                 <input
-                  value={code}
-                  onChange={(e) => setCode(formatCodeInput(e.target.value))}
-                  autoComplete="off"
-                  autoCapitalize="characters"
-                  spellCheck={false}
-                  placeholder="XXXX-XXXX-XXXX"
-                  className={styles.codeInput}
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="55 1234 5678"
+                  value={phone}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    if (contactError.phone) setContactError((c) => ({ ...c, phone: undefined }));
+                  }}
+                  maxLength={25}
                   required
                   disabled={locked}
+                  aria-invalid={Boolean(contactError.phone)}
+                  aria-describedby={contactError.phone ? "err-phone" : "help-phone"}
                 />
-                {codeLink && (
-                  <small>
-                    ¿No tienes código?{" "}
-                    <a href={codeLink} target="_blank" rel="noopener noreferrer">
-                      Pídelo por WhatsApp
-                    </a>
+                {contactError.phone ? (
+                  <small id="err-phone" className={styles.fieldError}>
+                    {contactError.phone}
+                  </small>
+                ) : (
+                  <small id="help-phone">Ahí te confirmamos tu pago. No se publica.</small>
+                )}
+              </label>
+
+              <label className={styles.field}>
+                <span>
+                  Correo <span className={styles.optional}>Opcional</span>
+                </span>
+                <input
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (contactError.email) setContactError((c) => ({ ...c, email: undefined }));
+                  }}
+                  maxLength={120}
+                  disabled={locked}
+                  aria-invalid={Boolean(contactError.email)}
+                  aria-describedby={contactError.email ? "err-email" : undefined}
+                />
+                {contactError.email && (
+                  <small id="err-email" className={styles.fieldError}>
+                    {contactError.email}
                   </small>
                 )}
               </label>
 
-              <fieldset className={styles.contact} disabled={locked}>
-                <legend>
-                  ¿Cómo te avisamos si ganas? <span className={styles.optional}>Opcional</span>
-                </legend>
-                <p className={styles.contactHelp}>Déjanos un correo, un teléfono o ambos. No se publican.</p>
-                <label className={styles.field}>
-                  <span>Correo</span>
+              <div className={styles.trap} aria-hidden="true">
+                <label>
+                  No llenes este campo
                   <input
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      if (contactError.email) setContactError((c) => ({ ...c, email: undefined }));
-                    }}
-                    maxLength={120}
-                    aria-invalid={Boolean(contactError.email)}
-                    aria-describedby={contactError.email ? "err-email" : undefined}
+                    name="rifa_extra"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={trap}
+                    onChange={(e) => setTrap(e.target.value)}
                   />
-                  {contactError.email && (
-                    <small id="err-email" className={styles.fieldError}>
-                      {contactError.email}
-                    </small>
-                  )}
                 </label>
-                <label className={styles.field}>
-                  <span>Teléfono o WhatsApp</span>
-                  <input
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(e.target.value);
-                      if (contactError.phone) setContactError((c) => ({ ...c, phone: undefined }));
-                    }}
-                    maxLength={25}
-                    aria-invalid={Boolean(contactError.phone)}
-                    aria-describedby={contactError.phone ? "err-phone" : undefined}
-                  />
-                  {contactError.phone && (
-                    <small id="err-phone" className={styles.fieldError}>
-                      {contactError.phone}
-                    </small>
-                  )}
-                </label>
-              </fieldset>
+              </div>
 
               {fieldError && (
                 <p className={styles.alert} role="alert">
@@ -351,9 +336,13 @@ function ResultView({ outcome, id, price, hours, onClose }: ResultProps) {
 
   let title = "No se pudo reservar";
   let text: string;
+  let wa: string | null = null;
   if (outcome.kind === "server" && !outcome.result.ok) {
-    text = ERROR_TEXT[outcome.result.error];
-    if (outcome.result.error === "number_unavailable") title = "Este número ya no está disponible";
+    const { error, limit } = outcome.result;
+    text = ERROR_TEXT[error](limit);
+    if (error === "number_unavailable") title = "Este número ya no está disponible";
+    if (error === "phone_limit" || error === "rate_limited")
+      wa = whatsappLink(payment.whatsapp, `Hola, quiero apartar el número ${id} de la rifa rumbo a Cracovia.`);
   } else if (outcome.kind === "unknown") {
     title = "No pudimos confirmar tu reserva";
     text = `${outcome.message} Antes de intentarlo otra vez, revisa en el tablero si el ${id} ya aparece a tu nombre.`;
@@ -368,6 +357,11 @@ function ResultView({ outcome, id, price, hours, onClose }: ResultProps) {
       </h2>
       <p className={styles.help}>{text}</p>
       <div className={styles.actions}>
+        {wa && (
+          <a className="btn btn-ghost" href={wa} target="_blank" rel="noopener noreferrer">
+            Escribir por WhatsApp
+          </a>
+        )}
         <button className="btn btn-primary" onClick={onClose}>
           Volver al tablero
         </button>
@@ -377,4 +371,4 @@ function ResultView({ outcome, id, price, hours, onClose }: ResultProps) {
 }
 
 // Exportado para pruebas.
-export const __test = { normalizeCode, formatCodeInput, cleanName, NAME_RE };
+export const __test = { cleanName, NAME_RE, ERROR_TEXT };

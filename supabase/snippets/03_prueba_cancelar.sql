@@ -1,7 +1,7 @@
 -- =====================================================================
 -- Deshace la prueba: cancela la reserva del 99 y lo deja disponible.
 -- No hay que editar nada. Queda en el historial como cualquier
--- cancelación, y el código usado jamás vuelve a funcionar.
+-- cancelación.
 -- =====================================================================
 do $$
 begin

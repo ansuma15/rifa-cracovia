@@ -1,19 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { adminApi, type AdminCode, type AdminNumber, type AdminStats, type AuditEntry, type GeneratedCode } from "./api";
-import { CodesTab } from "./CodesTab";
-import { GeneratedCodes } from "./GeneratedCodes";
+import { adminApi, type AdminNumber, type AdminStats, type AuditEntry } from "./api";
 import { HistoryTab } from "./HistoryTab";
 import { NumbersTab } from "./NumbersTab";
 import { SettingsTab } from "./SettingsTab";
 import styles from "./Admin.module.css";
 
-type Tab = "numeros" | "codigos" | "historial" | "ajustes";
+type Tab = "numeros" | "historial" | "ajustes";
 
 export interface AdminData {
   numbers: AdminNumber[];
   stats: AdminStats | null;
-  codes: AdminCode[];
   audit: AuditEntry[];
 }
 
@@ -22,21 +19,19 @@ export type RunAction = (label: string, fn: () => Promise<unknown>) => Promise<b
 
 export function Dashboard({ email, onSignOut }: { email: string; onSignOut: () => void }) {
   const [tab, setTab] = useState<Tab>("numeros");
-  const [data, setData] = useState<AdminData>({ numbers: [], stats: null, codes: [], audit: [] });
+  const [data, setData] = useState<AdminData>({ numbers: [], stats: null, audit: [] });
   const [loadError, setLoadError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
-  const [generated, setGenerated] = useState<GeneratedCode[]>([]);
   const reloadTimer = useRef<number | undefined>(undefined);
 
   const reload = useCallback(async () => {
     try {
-      const [numbers, stats, codes, audit] = await Promise.all([
+      const [numbers, stats, audit] = await Promise.all([
         adminApi.listNumbers(),
         adminApi.stats(),
-        adminApi.listCodes("issued"),
         adminApi.audit(100),
       ]);
-      setData({ numbers, stats, codes, audit });
+      setData({ numbers, stats, audit });
       setLoadError(null);
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : String(e));
@@ -77,39 +72,11 @@ export function Dashboard({ email, onSignOut }: { email: string; onSignOut: () =
     [reload],
   );
 
-  const generate = useCallback(
-    async (numbers: AdminNumber["number_id"][] | null) => {
-      try {
-        const rows = await adminApi.generateCodes(numbers);
-        if (rows.length === 0) {
-          setToast({ kind: "error", text: "No había números elegibles para generar códigos." });
-          return false;
-        }
-        setGenerated((prev) => [...prev, ...rows]);
-        setToast({ kind: "ok", text: `${rows.length} ${rows.length === 1 ? "código generado" : "códigos generados"}` });
-        await reload();
-        return true;
-      } catch (e) {
-        setToast({ kind: "error", text: e instanceof Error ? e.message : String(e) });
-        return false;
-      }
-    },
-    [reload],
-  );
-
   useEffect(() => {
     if (!toast) return;
     const t = window.setTimeout(() => setToast(null), toast.kind === "ok" ? 3000 : 8000);
     return () => window.clearTimeout(t);
   }, [toast]);
-
-  // Avisar antes de cerrar si hay códigos generados que no se han guardado.
-  useEffect(() => {
-    if (generated.length === 0) return;
-    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [generated.length]);
 
   const s = data.stats;
   const money = (n: number | null | undefined) =>
@@ -121,7 +88,6 @@ export function Dashboard({ email, onSignOut }: { email: string; onSignOut: () =
 
   const TABS: { id: Tab; label: string }[] = [
     { id: "numeros", label: "Números" },
-    { id: "codigos", label: `Códigos${s ? ` (${s.codes_issued})` : ""}` },
     { id: "historial", label: "Historial" },
     { id: "ajustes", label: "Ajustes" },
   ];
@@ -162,13 +128,12 @@ export function Dashboard({ email, onSignOut }: { email: string; onSignOut: () =
 
         <dl className={styles.stats}>
           <Stat label="Disponibles" value={s?.available} />
-          <Stat label="Reservados (por cobrar)" value={s?.reserved} tone="ticket" />
+          <Stat label="Apartados (por cobrar)" value={s?.reserved} tone="ticket" />
+          <Stat label="Por revisar" value={s?.unverified} tone="ticket" />
           <Stat label="Pagados" value={s?.paid} tone="paid" />
           <Stat label="Recaudación confirmada" value={money(s?.confirmed_revenue)} />
           <Stat label="Por cobrar" value={money(s?.pending_revenue_estimate ?? 0)} />
         </dl>
-
-        {generated.length > 0 && <GeneratedCodes codes={generated} onDismiss={() => setGenerated([])} />}
 
         <nav className={styles.tabs} aria-label="Secciones del panel">
           {TABS.map((t) => (
@@ -184,8 +149,7 @@ export function Dashboard({ email, onSignOut }: { email: string; onSignOut: () =
         </nav>
 
         <section className={styles.panel}>
-          {tab === "numeros" && <NumbersTab numbers={data.numbers} run={run} generate={generate} />}
-          {tab === "codigos" && <CodesTab codes={data.codes} run={run} generate={generate} />}
+          {tab === "numeros" && <NumbersTab numbers={data.numbers} run={run} />}
           {tab === "historial" && <HistoryTab audit={data.audit} />}
           {tab === "ajustes" && <SettingsTab run={run} />}
         </section>

@@ -1,18 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { __test } from "./ClaimDialog";
 
-const { normalizeCode, formatCodeInput, cleanName, NAME_RE } = __test;
+const { cleanName, NAME_RE, ERROR_TEXT } = __test;
 
-describe("código de autorización (lado cliente)", () => {
-  it("normaliza igual que el servidor: guiones, espacios, minúsculas, O→0, I/L→1", () => {
-    expect(normalizeCode("k7qf-m2xr-9wtb")).toBe("K7QFM2XR9WTB");
-    expect(normalizeCode("ABCD EFGH OIL1")).toBe("ABCDEFGH0111");
+describe("mensajes de error", () => {
+  it("el límite por teléfono dice cuántos números se permiten", () => {
+    expect(ERROR_TEXT.phone_limit(5)).toContain("5 números apartados sin pagar");
   });
-
-  it("agrupa de 4 en 4 mientras se escribe y no pasa de 12 caracteres", () => {
-    expect(formatCodeInput("abcdefgh")).toBe("ABCD-EFGH");
-    expect(formatCodeInput("abcdefghjkmnpq")).toBe("ABCD-EFGH-JKMN");
-    expect(formatCodeInput("ABCD-")).toBe("ABCD");
+  it("ningún mensaje menciona códigos", () => {
+    for (const f of Object.values(ERROR_TEXT)) expect(f(5).toLowerCase()).not.toContain("código");
   });
 });
 

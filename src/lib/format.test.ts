@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { payment } from "../content";
-import { codeRequestLink, contactErrors, formatClabe, holdHours, isValidClabe, normalizePhone, receiptLink, youtubeId } from "./format";
+import { contactErrors, waNumberFor, whatsappLink, formatClabe, holdHours, isValidClabe, normalizePhone, receiptLink, youtubeId } from "./format";
 
 describe("CLABE", () => {
   it("la CLABE publicada tiene 18 dígitos y dígito verificador correcto", () => {
@@ -31,9 +31,14 @@ describe("YouTube", () => {
   });
 });
 
-describe("contacto opcional (mismas reglas que el servidor)", () => {
-  it("vacío es válido", () => {
+describe("contacto (mismas reglas que el servidor)", () => {
+  it("en el panel, vacío es válido", () => {
     expect(contactErrors("", "")).toEqual({});
+  });
+  it("en el registro público el teléfono es obligatorio y el correo no", () => {
+    expect(contactErrors("", "", { phoneRequired: true }).phone).toBeDefined();
+    expect(contactErrors("", "   ", { phoneRequired: true }).phone).toBeDefined();
+    expect(contactErrors("", "55 1234 5678", { phoneRequired: true })).toEqual({});
   });
   it("acepta formatos comunes de teléfono", () => {
     expect(contactErrors("", "55 1234 5678")).toEqual({});
@@ -60,9 +65,16 @@ describe("plazo y comprobante", () => {
     expect(receiptLink(null)).toBeNull();
     expect(receiptLink("55-1234")).toBeNull();
   });
-  it("el enlace para pedir código lleva el número, o un espacio si aún no se elige", () => {
-    expect(decodeURIComponent(codeRequestLink("525512345678", "07")!)).toContain("reservar el número 07");
-    expect(decodeURIComponent(codeRequestLink("525512345678")!)).toContain("reservar el número __");
-    expect(codeRequestLink(null)).toBeNull();
+  it("arma enlaces de WhatsApp con mensaje y rechaza números inválidos", () => {
+    expect(whatsappLink("525512345678", "Hola 25")).toBe("https://wa.me/525512345678?text=Hola%2025");
+    expect(whatsappLink("+52 55 1234 5678", "x")).toMatch(/^https:\/\/wa\.me\/525512345678\?/);
+    expect(whatsappLink(null, "x")).toBeNull();
+    expect(whatsappLink("123", "x")).toBeNull();
+  });
+  it("teléfono de 10 dígitos se toma como México", () => {
+    expect(waNumberFor("55 1234 5678")).toBe("525512345678");
+    expect(waNumberFor("+525512345678")).toBe("525512345678");
+    expect(waNumberFor("+1 415 555 0100")).toBe("14155550100");
+    expect(waNumberFor(null)).toBeNull();
   });
 });

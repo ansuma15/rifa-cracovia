@@ -5,77 +5,89 @@ Panel: `https://ansuma15.github.io/rifa-cracovia/admin/`
 ## El ciclo de cada número
 
 ```
-Disponible ──(entregas código)──► el participante lo registra ──► Por cobrar ──(confirmas pago)──► Pagado
-                                                                     │
-                                                       (Cancelar) ◄──┴── el número vuelve a Disponible
+Disponible ──(cualquiera lo aparta: nombre + WhatsApp)──► Por cobrar ──(confirmas pago)──► Pagado
+                                                              │
+                         (Liberar, o vence el plazo) ◄────────┴── el número vuelve a Disponible
 ```
 
-## 1. Generar códigos para números exactos
+Ya no hay códigos: cualquier persona aparta tocando un número. Tu trabajo es **revisar** quién
+es real y **cobrar**. Para que nadie acapare el tablero, la página aplica sola estas reglas:
 
-Cuando alguien te diga "quiero el 25":
+| Regla | Valor | Dónde se cambia |
+|---|---|---|
+| Teléfono obligatorio (correo opcional) | — | — |
+| Números sin pagar por teléfono | 5 | **Ajustes → Números sin pagar por teléfono** |
+| Reservas por hora desde la misma conexión | 8 | Fijo en la base de datos |
+| Plazo para pagar | 72 horas | **Ajustes → Horas para pagar una reserva** |
 
-**Opción rápida:** pestaña **Números** → filtro **Disponibles** → busca `25` → **Generar código**.
+## 1. Revisar (todos los días)
 
-**Varios a la vez:** pestaña **Códigos** → escribe los números → **Generar códigos**.
+Entra a **Números → Por revisar** (es el filtro con el que abre el panel). Ahí están los
+apartados que nadie ha verificado, **los que vencen primero arriba**.
 
-| Escribes | Se generan |
-|---|---|
-| `25` | 25 |
-| `7, 25, 31` | 07, 25, 31 |
-| `40-45` | 40, 41, 42, 43, 44, 45 |
-| `3 9 12-14` | 03, 09, 12, 13, 14 |
+En cada fila:
 
-Antes de generar, el panel muestra exactamente qué números va a incluir. Si alguno ya está
-ocupado o ya tiene un código sin usar, **no se genera ninguno** y te dice cuál es el problema.
+1. **WhatsApp**: abre un chat con un mensaje ya escrito: le agradece, le recuerda el plazo y
+   le da la CLABE. Si responde, es una persona real.
+2. **Verificar**: márcalo cuando sepas que es de fiar (respondió, lo conoces, alguien de la
+   Tripulación lo responde). Solo lo ves tú; el tablero no cambia.
+3. Si ves **"Este teléfono tiene N números apartados sin pagar"** en ámbar, revísalo con más
+   cuidado.
+4. **Liberar**: si es falso o no responde, libéralo con un motivo. El número vuelve a estar
+   disponible al instante.
 
-## 2. Entregar el código
+## 2. Cobrar
 
-Al generarlos aparece un recuadro ámbar con los códigos. **Es la única vez que se muestran.**
-
-- **Copiar mensaje para WhatsApp**: copia un mensaje con el número, el código y la dirección
-  del sitio. Pégalo en el chat de la persona.
-- **Descargar CSV**: guarda todos los códigos en un archivo que abre Excel (conserva el
-  cero de `07`). Guárdalo en un lugar privado, no en el repositorio.
-- **Ya los guardé**: cierra el recuadro.
-
-Opcional: en **Códigos** → **Marcar entregado**, para llevar el control de a quién se lo diste.
-
-Si alguien pierde su código: **Revocar** y genera uno nuevo para ese número.
-
-## 3. Cobrar
-
-Cuando la persona reserva su número, aparece en **Números** → **Por cobrar** (filtro
-predeterminado) y el panel se actualiza solo. Cada fila muestra:
-
-- **vence en …**: cuánto le queda del plazo de 72 horas (en ámbar cuando faltan menos de 12).
-- **correo y teléfono**, si los dejó (opcionales). Tócalos para escribirle o llamarle.
-
-Si el plazo vence sin pago, la reserva se cancela sola, el número vuelve a quedar libre y el
-código usado deja de servir. Si esa persona todavía lo quiere, genera un código nuevo.
-El plazo se cambia en **Ajustes → Horas para pagar una reserva** (aplica a reservas nuevas).
-
-Los comprobantes llegan a la Tripulación Cracovia o a tu WhatsApp; con eso confirmas el pago.
-
-Cuando recibas el dinero: **Marcar pagado** → el monto ya viene con el precio ($700) →
-agrega una nota (efectivo, transferencia…) → **Confirmar pago**.
+Cuando recibas el dinero (comprobante por WhatsApp o efectivo con la Tripulación Cracovia):
+**Marcar pagado** → el monto ya viene con el precio ($700) → agrega una nota (efectivo,
+transferencia…) → **Confirmar pago**. Al pagar, el número también queda **verificado**.
 
 Confirmar un pago **no se puede deshacer**. Si te equivocas de número, cancela con un motivo y
-vuelve a asignar.
+vuelve a apartarlo.
 
-## 4. Corregir o cancelar
+Si el plazo vence sin pago, la reserva se cancela sola y el número vuelve a quedar libre.
+Revisa **Vencen en 24 h** para escribirles antes de que pase.
 
-- **Editar**: corrige el nombre que se ve en el tablero, o agrega un contacto o notas
+## 3. Extender el plazo (casos especiales)
+
+**Extender plazo** en la fila del número:
+
+- **+24 h, +48 h o +72 h**: suma ese tiempo al plazo actual. Si ya había vencido (y el sistema
+  aún no lo liberaba), cuenta desde ahora.
+- **Fecha y hora exactas**: por ejemplo "paga antes del 10 de diciembre a las 20:00". También
+  sirve para acortar un plazo.
+
+Queda registrado en el **Historial**.
+
+Recuerda la regla publicada: los números que no estén cubiertos por completo para la fecha del
+sorteo no participan, y lo abonado no se reembolsa.
+
+## 4. Alguien quiere más de 5 números
+
+Dos caminos:
+
+- Que pague alguno de los que tiene: los pagados no cuentan para el límite.
+- Sube el límite en **Ajustes → Números sin pagar por teléfono** (aplica a todos). Bájalo
+  otra vez cuando termine de apartar.
+
+## 5. Corregir o cancelar
+
+- **Editar**: corrige el nombre que se ve en el tablero, o el teléfono, correo y notas
   privadas. Nada de eso, salvo el nombre, es público.
-- **Cancelar**: libera el número (pide un motivo). El código usado ya no sirve; si alguien más
-  lo quiere, genera uno nuevo.
+- **Liberar / Cancelar**: deja el número disponible (pide un motivo).
 
-## 5. Antes del sorteo
+## 6. Si llegan reservas falsas en masa
 
-1. Revisa **Por cobrar**: cobra o cancela todas las reservas pendientes.
-2. **Ajustes** → **Cerrar registro**. Nadie podrá registrar números aunque tenga código.
+**Ajustes → Cerrar registro**. Nadie podrá apartar mientras esté cerrado. Libera las falsas
+desde **Por revisar** y vuelve a abrir el registro.
+
+## 7. Antes del sorteo
+
+1. Revisa **Por cobrar**: cobra o libera todas las reservas pendientes.
+2. **Ajustes** → **Cerrar registro**.
 3. Toma una captura del tablero público como constancia de quién tiene cada número.
 
-## 6. El día del sorteo (sábado 12 de diciembre de 2026, 20:00 h)
+## 8. El día del sorteo (sábado 12 de diciembre de 2026, 20:00 h)
 
 1. Consulta el resultado oficial del Sorteo Especial No. 319 de la Lotería Nacional.
 2. Toma las **dos últimas cifras del premio mayor**: ese es el número ganador.
@@ -83,6 +95,5 @@ vuelve a asignar.
 
 ## Historial
 
-La pestaña **Historial** registra cada operación (quién, qué, cuándo y el motivo). No se
-puede editar ni borrar, ni siquiera desde la base de datos. Te sirve para aclarar cualquier
-duda de un participante.
+La pestaña **Historial** registra cada operación (quién, qué, cuándo y el motivo), incluidas
+las extensiones de plazo. No se puede editar ni borrar, ni siquiera desde la base de datos.

@@ -55,12 +55,21 @@ export function normalizePhone(raw: string): string {
 export const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/;
 export const PHONE_RAW_RE = /^[0-9+ ()\-.]+$/;
 
-export function contactErrors(email: string, phone: string): { email?: string; phone?: string } {
+/**
+ * Errores de contacto antes de enviar (el servidor vuelve a validar).
+ * En el registro público el teléfono es obligatorio; en el panel, opcional.
+ */
+export function contactErrors(
+  email: string,
+  phone: string,
+  { phoneRequired = false }: { phoneRequired?: boolean } = {},
+): { email?: string; phone?: string } {
   const out: { email?: string; phone?: string } = {};
   const e = email.trim().toLowerCase();
   if (e && (e.length > 120 || !EMAIL_RE.test(e))) out.email = "Revisa el correo, por ejemplo nombre@gmail.com.";
   const p = phone.trim();
-  if (p && (!PHONE_RAW_RE.test(p) || !/^\+?\d{8,15}$/.test(normalizePhone(p))))
+  if (!p && phoneRequired) out.phone = "Escribe tu WhatsApp: ahí te confirmamos tu pago.";
+  else if (p && (!PHONE_RAW_RE.test(p) || !/^\+?\d{8,15}$/.test(normalizePhone(p))))
     out.phone = "Escribe un teléfono de 10 dígitos, por ejemplo 55 1234 5678.";
   return out;
 }
@@ -74,13 +83,19 @@ export function receiptLink(whatsapp: string | null, number?: string, name?: str
   return `https://wa.me/${whatsapp}?text=${encodeURIComponent(parts.join(" "))}`;
 }
 
+/** Enlace de WhatsApp con un mensaje ya escrito. null si el número no es válido. */
+export function whatsappLink(phone: string | null, text: string): string | null {
+  const digits = (phone ?? "").replace(/\D/g, "");
+  if (!/^\d{8,15}$/.test(digits)) return null;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+}
+
 /**
- * Enlace de WhatsApp para pedir el código de un número. Cada código sirve
- * para un solo número, así que el mensaje ya lleva el número si se conoce;
- * si no, deja el espacio "__" para que la persona lo escriba.
+ * Teléfono del participante → número para wa.me. Si son 10 dígitos se asume
+ * México (+52), que es como casi todos lo escriben.
  */
-export function codeRequestLink(whatsapp: string | null, number?: string): string | null {
-  if (!whatsapp || !/^\d{8,15}$/.test(whatsapp)) return null;
-  const text = `Hola, quiero reservar el número ${number ?? "__"} de la rifa rumbo a Cracovia. ¿Me compartes mi código?`;
-  return `https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`;
+export function waNumberFor(phone: string | null): string | null {
+  const d = (phone ?? "").replace(/\D/g, "");
+  if (/^\d{10}$/.test(d)) return `52${d}`;
+  return /^\d{8,15}$/.test(d) ? d : null;
 }

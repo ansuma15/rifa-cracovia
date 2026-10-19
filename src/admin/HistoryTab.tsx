@@ -11,6 +11,10 @@ const ACTIONS: Record<string, string> = {
   participant_updated: "Editó datos",
   reservation_expired: "Reserva vencida",
   settings_updated: "Cambió ajustes",
+  reservation_extended: "Extendió el plazo",
+  participation_verified: "Marcó como verificado",
+  participation_unverified: "Quitó la verificación",
+  codes_retired: "Retiró los códigos pendientes",
 };
 
 function detail(e: AuditEntry): string | null {
@@ -20,6 +24,9 @@ function detail(e: AuditEntry): string | null {
   if (e.action === "participant_updated" && d.old_first_name !== d.new_first_name) return `${d.old_first_name} → ${d.new_first_name}`;
   if (e.action === "code_revoked" && d.reason) return String(d.reason);
   if (e.action === "settings_updated") return JSON.stringify(d.patch);
+  if (e.action === "reservation_extended" && d.new_expires_at)
+    return `hasta ${new Date(String(d.new_expires_at)).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" })}`;
+  if (e.action === "codes_retired") return `${d.count} códigos`;
   return null;
 }
 

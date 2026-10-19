@@ -98,32 +98,13 @@
   font-weight: 700;
 }
 
-.codeInput {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.45rem !important;
-  letter-spacing: 0.08em;
-}
-
-/* Contacto opcional: agrupado y visualmente secundario */
-.contact {
-  margin: 1.4rem 0 0;
-  padding: 1rem 1rem 1.1rem;
-  border: 1px dashed var(--line);
-  border-radius: var(--radius-m);
-}
-
-/* La leyenda se comporta como un título normal, alineado a la izquierda
-   (por defecto los navegadores la incrustan centrada en el borde). */
-.contact legend {
-  float: left;
-  width: 100%;
-  padding: 0;
-  font-weight: 700;
-}
-
-.contact legend + * {
-  clear: both;
+/* Campo trampa: fuera de la vista y del teclado; solo un programa lo llena */
+.trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 .optional {
@@ -135,16 +116,6 @@
   font-size: 0.75rem;
   font-weight: 700;
   vertical-align: 0.1em;
-}
-
-.contactHelp {
-  padding-top: 0.25rem;
-  color: var(--ice-dim);
-  font-size: var(--text-s);
-}
-
-.contact .field:first-of-type {
-  margin-top: 0.6rem;
 }
 
 .fieldError {

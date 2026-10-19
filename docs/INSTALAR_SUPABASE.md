@@ -91,17 +91,17 @@ Abre la dirección que imprime (`http://localhost:5173`). Debes ver las 100 buta
 
 ## 8. Probar un registro de punta a punta
 
-Como el panel todavía no existe, la prueba se hace con dos snippets que **no hay que editar**:
+La forma más directa es desde el sitio:
 
-1. Ejecuta `supabase/snippets/02_prueba_generar_codigo.sql`. Te devuelve un código para el
-   número **99**.
-2. En el sitio, toca el **99**, escribe tu nombre y ese código.
-3. Debe confirmarse la reserva y el 99 debe ponerse en ámbar con tu nombre. Si abres el
+1. Toca el **99**, escribe tu nombre y tu WhatsApp, y reserva.
+2. Debe confirmarse la reserva y el 99 debe ponerse en ámbar con tu nombre. Si abres el
    sitio en otra ventana o en tu celular, también debe cambiar ahí (Realtime).
-4. Intenta registrarlo otra vez con el mismo código: debe rechazarlo.
-5. Ejecuta `supabase/snippets/03_prueba_cancelar.sql` para dejar el 99 disponible otra vez.
-   Queda en el historial como "Prueba de instalación"; el código usado nunca vuelve a
-   funcionar.
+3. Intenta reservarlo otra vez: debe decir que ya no está disponible.
+4. Ejecuta `supabase/snippets/03_prueba_cancelar.sql` para dejar el 99 disponible otra vez.
+   Queda en el historial como "Prueba de instalación".
+
+Si prefieres probar sin abrir el sitio, `supabase/snippets/02_prueba_reservar.sql` aparta el
+99 desde el SQL Editor.
 
 > **Consejo para el SQL Editor:** abre una consulta nueva (*New query*) para cada archivo,
 > pega el contenido completo y no selecciones texto antes de pulsar *Run*. Si hay texto

@@ -58,7 +58,7 @@ export function BoardSection({ boardState, selected, onSelect }: Props) {
           <div>
             <h2 id="numeros-titulo">Elige tu número</h2>
             <p className={styles.lead}>
-              Toca un número disponible para registrarlo con tu código, o uno ocupado para ver de quién es.
+              Toca un número disponible para apartarlo, o uno ocupado para ver de quién es.
             </p>
           </div>
           <SyncStatus phase={phase} sync={sync} hasError={Boolean(error)} />

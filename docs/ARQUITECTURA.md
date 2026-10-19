@@ -1,5 +1,14 @@
 # Arquitectura — Rifa solidaria rumbo a Cracovia
 
+> **Cambio importante (migración 8, octubre 2026): el registro ya no usa códigos.**
+> Cualquier persona aparta un número con su nombre y su teléfono (obligatorio). Lo que antes
+> hacía el código lo hacen ahora: el límite de números sin pagar por teléfono (5, configurable),
+> el límite de 8 reservas por hora por conexión, la revisión manual en el panel (verificado) y
+> la extensión de plazos. Las secciones de este documento que describen la generación,
+> entrega y validación de códigos se conservan como historia del diseño; la tabla
+> `private.authorization_codes` sigue existiendo solo para las reservas antiguas.
+> Detalle completo en `supabase/migrations/20261018000800_registro_sin_codigo.sql`.
+
 > Etapa 1 del desarrollo incremental: arquitectura, modelo de datos, flujo de registro y
 > la capa de seguridad en la base de datos (migraciones probadas). La interfaz pública y el
 > panel se construyen en las etapas siguientes sobre esta base.

@@ -87,8 +87,8 @@ para recuperar tu contraseña) apuntará a tu sitio y no a `localhost`.
 
 - [ ] El sitio muestra "100 números libres", el precio de $700 y la fecha del sorteo.
 - [ ] `/admin/` te pide correo y contraseña, y con los tuyos entra al panel.
-- [ ] Desde el panel generas un código, lo registras en el sitio desde tu celular, aparece
-      en "Por cobrar" y luego lo cancelas con el motivo "Prueba".
+- [ ] Apartas un número desde tu celular, aparece en el panel en "Por revisar", pruebas el
+      botón de WhatsApp y luego lo liberas con el motivo "Prueba".
 - [ ] Mandas el enlace a tu propio chat de WhatsApp y aparece la vista previa con la imagen.
 - [ ] Ya pusiste las fotos del premio (ver abajo).
 

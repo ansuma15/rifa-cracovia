@@ -36,17 +36,14 @@ export async function fetchPublicConfig(): Promise<PublicConfig> {
 export async function claimNumber(
   number: NumberId,
   firstName: string,
-  code: string,
-  contact: { email?: string; phone?: string } = {},
+  phone: string,
+  email = "",
 ): Promise<ClaimOutcome> {
   if (!supabase) return { kind: "not_configured" };
   try {
-    // Correo y teléfono son opcionales y privados. Solo se envían si se
-    // escribieron: así el registro sin contacto funciona incluso con una base
-    // de datos que aún no tenga la migración 7.
-    const args: Record<string, string> = { p_number: number, p_first_name: firstName, p_code: code };
-    if (contact.email?.trim()) args.p_email = contact.email.trim();
-    if (contact.phone?.trim()) args.p_phone = contact.phone.trim();
+    // Teléfono obligatorio, correo opcional; ambos privados (migración 8).
+    const args: Record<string, string> = { p_number: number, p_first_name: firstName, p_phone: phone.trim() };
+    if (email.trim()) args.p_email = email.trim();
     const { data, error } = await supabase.rpc("claim_number", args);
     if (error) {
       return {

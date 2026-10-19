@@ -37,22 +37,31 @@ def _url_for(dbname: str) -> str:
     return psycopg.conninfo.make_conninfo(BASE_URL, dbname=dbname)
 
 
+def build_db(name: str, migrations) -> None:
+    """Crea una base con el stub de Supabase y las migraciones indicadas."""
+    with _admin_conn() as c:
+        c.execute(sql.SQL("drop database if exists {} with (force)").format(sql.Identifier(name)))
+        c.execute(sql.SQL("create database {}").format(sql.Identifier(name)))
+    with psycopg.connect(_url_for(name), autocommit=True) as c:
+        c.execute(STUB.read_text())
+        for m in migrations:
+            c.execute(m.read_text())
+
+
+def drop_db(name: str) -> None:
+    with _admin_conn() as c:
+        c.execute(sql.SQL("drop database if exists {} with (force)").format(sql.Identifier(name)))
+
+
 def _admin_conn():
     return psycopg.connect(BASE_URL, autocommit=True)
 
 
 @pytest.fixture(scope="session")
 def template_db():
-    with _admin_conn() as c:
-        c.execute(sql.SQL("drop database if exists {} with (force)").format(sql.Identifier(TEMPLATE)))
-        c.execute(sql.SQL("create database {}").format(sql.Identifier(TEMPLATE)))
-    with psycopg.connect(_url_for(TEMPLATE), autocommit=True) as c:
-        c.execute(STUB.read_text())
-        for m in MIGRATIONS:
-            c.execute(m.read_text())
+    build_db(TEMPLATE, MIGRATIONS)
     yield TEMPLATE
-    with _admin_conn() as c:
-        c.execute(sql.SQL("drop database if exists {} with (force)").format(sql.Identifier(TEMPLATE)))
+    drop_db(TEMPLATE)
 
 
 @pytest.fixture
@@ -97,12 +106,18 @@ class Client:
             cur.execute(query, params)
             return cur.fetchall()
 
-    def claim(self, number: str, name: str, code: str, email: str | None = None,
-              phone: str | None = None) -> dict:
-        if email is None and phone is None:
-            # Llamada con 3 argumentos: así lo hace una versión anterior del sitio.
-            return self.one("select public.claim_number(%s, %s, %s)", (number, name, code))
-        return self.one("select public.claim_number(%s, %s, %s, %s, %s)", (number, name, code, email, phone))
+    _phone_seq = 0
+
+    def claim(self, number: str, name: str, phone: str | None = "auto",
+              email: str | None = None) -> dict:
+        """Registro como lo hace el sitio. Por defecto usa un teléfono distinto
+        en cada llamada, para que el límite por teléfono no interfiera con
+        pruebas que no tratan de él."""
+        if phone == "auto":
+            Client._phone_seq += 1
+            phone = f"55{10000000 + Client._phone_seq:08d}"
+        return self.one("select public.claim_number(p_number => %s, p_first_name => %s, "
+                        "p_phone => %s, p_email => %s)", (number, name, phone, email))
 
     def close(self):
         self.conn.close()
@@ -145,12 +160,6 @@ def public(make_client):
     return make_client("anon")
 
 
-def gen_code(admin: Client, number: str) -> str:
-    rows = admin.all("select number_id, code from public.admin_generate_codes(%s)", ([number],))
-    assert len(rows) == 1 and rows[0][0] == number
-    return rows[0][1]
-
-
 def check_invariants(superuser) -> None:
     """Propiedades que deben cumplirse SIEMPRE, pase lo que pase."""
     rows = superuser.execute("""
@@ -172,7 +181,7 @@ def check_invariants(superuser) -> None:
     """).fetchall()
     assert bad == [], "códigos consumidos sin participación o participaciones sin código consumido"
 
-    # Una participación siempre usa un código de SU número.
+    # Las participaciones antiguas (con código) siempre usan un código de SU número.
     bad = superuser.execute("""
         select p.id from private.participations p
           join private.authorization_codes c on c.id = p.code_id

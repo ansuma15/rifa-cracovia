@@ -118,10 +118,7 @@ export const rules = {
     {
       title: "Reserva tu número",
       detail:
-        "Elige un número disponible en el tablero y tócalo. Escribe tu nombre y tu código y, si quieres, déjanos un correo o teléfono para avisarte si ganas.",
-      // Cada número necesita su propio código de autorización.
-      codeHelp: "¿Aún no tienes tu código? Pídelo a la persona que te contó de esta rifa o directamente por WhatsApp.",
-      codeButton: "Pedir código por WhatsApp",
+        "Elige un número disponible en el tablero y tócalo. Escribe tu nombre de pila y tu WhatsApp; el correo es opcional.",
     },
     {
       title: "Realiza tu pago",
@@ -133,8 +130,13 @@ export const rules = {
     title: "¡Listo!",
     detail: "Ya estás participando para ganar.",
   },
+  /** Reglas del plazo de pago (recuadro "Importante"). La primera, con las horas, la arma Rules.tsx. */
+  policy: [
+    "En casos especiales podemos ampliar el plazo de pago. Escríbenos por WhatsApp antes de que venza.",
+    "Los números que no estén cubiertos por completo para la fecha del sorteo no participan, y lo que se haya abonado no será reembolsado.",
+  ],
   notes: [
-    "En el tablero solo se muestra tu nombre de pila. Tu correo y teléfono solo los ve el organizador para avisarte si ganas.",
+    "En el tablero solo se muestra tu nombre de pila. Tu teléfono y tu correo solo los ve el organizador, para confirmar tu pago y avisarte si ganas.",
     "Un número reservado o pagado no puede registrarse por otra persona.",
   ],
   draw: {
