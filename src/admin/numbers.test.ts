@@ -7,7 +7,7 @@ describe("mensaje para contactar a quien apartó", () => {
     expect(m).toContain("Hola, Ana");
     expect(m).toContain("*25*");
     expect(m).toContain("de $700");
-    expect(m).toContain("6469 9040 4078 8014 66");
+    expect(m).toContain("170180010545328870");
     expect(m).toContain("comprobante");
     expect(m.toLowerCase()).not.toContain("código");
   });
